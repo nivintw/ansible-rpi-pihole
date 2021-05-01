@@ -13,7 +13,7 @@ alias .5='cd ../../../../..'
 alias ls='ls --color=auto'
 
 ## Use a long listing format ##
-alias ll='ls -la'
+alias ll='ls -l'
 alias lla='ls -la'
 
 ## Show hidden files ##
@@ -29,7 +29,7 @@ alias j='jobs -l'
 
 alias vi=vim
 alias svi='sudo vi'
-alias vis='vim "+set si"'
+# alias vis='vim "+set si"'
 alias edit='vim'
 
 # show open ports
@@ -66,4 +66,4 @@ alias du='du -ch'
 
 
 # top is atop, just like vi is vim
-alias top='atop'
+# alias top='atop'
