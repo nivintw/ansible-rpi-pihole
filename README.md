@@ -1,3 +1,44 @@
+# Moderately secure recursive Pi-hole DNS server running on raspberry pi using Ansible, Docker and unbound.
+
+The title claims "moderately secure" because the aim is to leverage ansible for automating the best-practices configuration changes that are recommended for a new raspberry pi OS install.
+
+The system I use for this is a raspberry pi 3 B+, which is why I don't bother with a 64-bit OS. Please feel free to fork and make changes for your personal system if you like what you see but want to make changes.
+
+Some of the decisions are specific to the fact that this system is intended to be ran on a raspberry pi that is doing nothing other than DNS.
+
+For that reason, in combination with the best-practices mentioned, here's a short non-exhustive list of what will be happening:
+
+1. Create a personal admin (capable of sudo) user account for administration that is not the default pi user.
+1. Add ssh public key to ~/.ssh/authorized_keys
+1. Update all relevant localization settings.
+1. Disable wifi and bluetooth (these are not needed for this system)
+1. Disable `pi` user login
+1. Explicitly allow only the personal admin account to login via ssh
+1. Disable password auth for ssh.
+
+Additionally, there are some changes that are specific to my network setup. I will try to make sure that these are configurable and transparent to maximize re-usability, but will include fake-value examples for if you have a similar setup.
+
+Those changes include but aren't limited to:
+
+1. Adding virtual interfaces so that the DNS server is reachable from my separate vlans.
+1. Setting a static IP on all ethernet interfaces for the pi.
+1. Setting a hostname for the pi.
+1. ... More to come later.
+
+
+The ultimate aim is to leverage ansible for setting up a raspberry pi running pihole using docker, with unbound for recursive dns resolution.
+
+https://docs.pi-hole.net/guides/dns/unbound/
+
+Inspired by the ansible role found here in addition to the original forked repo: 
+
+https://github.com/TWinsnes/galaxy-role-pihole/blob/master/tasks/main.yml
+
+NOTE: This is a forked repo that is under active development / changes.
+The original readme is left below for now. 
+
+## The below is for reference from the original that was forked. This repo is not ready to be used. Proceed with running a strangers code at your own peril.
+
 # ansible-pi
 
 ![](https://raw.github.com/motdotla/ansible-pi/master/ansible-pi.jpg)
