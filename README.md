@@ -34,6 +34,9 @@ Inspired by the ansible role found here in addition to the original forked repo:
 
 https://github.com/TWinsnes/galaxy-role-pihole/blob/master/tasks/main.yml
 
+Also:
+https://github.com/geerlingguy/ansible-role-docker
+
 NOTE: This is a forked repo that is under active development / changes.
 The original readme is left below for now. 
 
