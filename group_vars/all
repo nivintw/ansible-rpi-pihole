@@ -1,8 +1,4 @@
-ansible_connection: ssh
-ansible_ssh_user: pi
-ansible_ssh_pass: raspberry
-
-toplevel_timeservers: ['pool.ntp.org', 'time.google.com']
+# toplevel_timeservers: ["pool.ntp.org", "time.google.com"]
 
 # Source: https://github.com/fheinle/ansible-pihole/blob/master/defaults/main.yml
 user_pihole: "pihole"
@@ -23,6 +19,3 @@ ipv4_address: "{{ hostvars[inventory_hostname]['ansible_' + network_interface]['
 # per default just use the first available ipv6 address on the interface
 ipv6: True
 ipv6_address: "{{ hostvars[inventory_hostname]['ansible_' + network_interface]['ipv6'][0]['address'] }}"
-dns_servers:
-  - "8.8.8.8"
-  - "8.8.4.4"
