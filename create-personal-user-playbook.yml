@@ -2,7 +2,7 @@
 - hosts: pihole
   become: yes
   tasks:
-    - name: Add the personal users
+    - name: Add the personal user for administration - we will disable pi user login later.
       user:
         name: "{{ personal_admin_user }}"
         password: "{{ personal_admin_password | password_hash('sha512') }}"
