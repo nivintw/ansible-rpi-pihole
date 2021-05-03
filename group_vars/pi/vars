@@ -1,0 +1,4 @@
+---
+# Add personal admin user
+personal_admin_user: "{{ vault_personal_admin_user }}"
+personal_admin_password: "{{ vault_personal_admin_password }}"

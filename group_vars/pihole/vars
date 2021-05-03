@@ -1,9 +1,5 @@
 # toplevel_timeservers: ["pool.ntp.org", "time.google.com"]
 
-# Add personal admin user
-personal_admin_user: "{{ vault_personal_admin_user }}"
-personal_admin_password: "{{ vault_personal_admin_password }}"
-
 # Source: https://github.com/fheinle/ansible-pihole/blob/master/defaults/main.yml
 user_pihole: "pihole"
 group_pihole: "pihole"
@@ -21,5 +17,5 @@ network_interface: eth0
 ipv4_static: True
 ipv4_address: "{{ hostvars[inventory_hostname]['ansible_' + network_interface]['ipv4']['address'] }}"
 # per default just use the first available ipv6 address on the interface
-ipv6: True
-ipv6_address: "{{ hostvars[inventory_hostname]['ansible_' + network_interface]['ipv6'][0]['address'] }}"
+# ipv6: True
+# ipv6_address: "{{ hostvars[inventory_hostname]['ansible_' + network_interface]['ipv6'][0]['address'] }}"
