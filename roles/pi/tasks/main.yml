@@ -1,137 +1,108 @@
 ---
+- name: Set timezone to America/Chicago
+  community.general.timezone:
+    name: America/Chicago
 
-- name: "Setting hostname to 'pihole'"
-  hostname:
-    name: pihole
-  tags: admin
+- name: Set locale to en_US.UTF-8
+  community.general.locale_gen:
+    name: en_US.UTF-8
+    state: present
 
-- name: 'Disable WIFI and Bluetooth'
-  copy: src=./files/raspi-blacklist.conf dest=/etc/modprobe.d/raspi-blacklist.conf mode=0600
-  tags: admin
+- name: Add the personal user for administration - we will disable pi user login later.
+  user:
+    name: "{{ personal_admin_user }}"
+    password: "{{ personal_admin_password | password_hash('sha512') }}"
+    comment: personal user for admin.
+    groups: sudo
+    append: yes
+    update_password: on_create
 
-- name: 'Set default bash aliases'
-  copy: src=./files/etc_profile.d_bash_aliases.sh dest=/etc/profile.d/bash_aliases.sh mode=0600
-  tags: admin
+- name: Set authorized key for personal admin user copying it from current user.
+  authorized_key:
+    user: "{{ personal_admin_user }}"
+    state: present
+    #TODO: Update this to not assume the public key name
+    key: "{{ lookup('file', lookup('env', 'HOME') + '/.ssh/id_rsa.pub') }}"
 
-- name: 'Update APT package cache'
+- name: Change default password for pi
+  user:
+    name: pi
+    password: "{{ lookup('password', '/tmp/passwordfile chars=ascii_letters,digits,punctuation') | password_hash('sha512')  }}"
+    update_password: always
+
+- name: Update APT package cache
   apt:
     update_cache: yes
-    upgrade: safe
-  tags: admin
+  tags:
+    - admin
 
-- name: Install admin tools (vim, htop, ntop, nmap)
+- name: Install enhanced editor
   apt:
-    package: "{{ item }}"
-    state: installed
-  with_items:
-    - python-apt
-    - python-pip
-    - vim
-    - htop
-    - ntop
-    - nmap
-    - atop
-  tags: admin
-
-- name: Install grin (better grep)
-  shell: pip install grin
-  tags: admin
-
-- name: Install NTP
-  apt:
-    package: ntp
+    name: vim
     state: present
-  tags: ntp
+    update_cache: true
 
-- name: Copy over the NTP configuration
-  template: src=files/ntp.conf dest=/etc/ntp.conf
-  notify:
-    - restart ntp
-    - force ntp update
-  tags: ntp
+- name: Install process observation tools
+  ansible.builtin.apt:
+    name: htop
+    state: present
+    update_cache: true
 
-- name: Make sure NTP is started up
-  service: name=ntp state=started enabled=yes
-  tags: ntp
+- name: Install cron job scheduler
+  ansible.builtin.apt:
+    name: cron
+    state: present
+    update_cache: true
 
-- name: "Download Pi-Hole installer"
-  get_url:
-      url: https://install.pi-hole.net
-      dest: ~/install-pihole.sh
-      mode: 0740
-  tags: pihole
+# - name: "Disable WIFI and Bluetooth"
+#   copy: src=./files/raspi-blacklist.conf dest=/etc/modprobe.d/raspi-blacklist.conf mode=0600
+#   tags: admin
 
-- name: Create pihole configuration directory
-  become: True
-  file:
-    name="{{ fspath_pihole_config }}"
-    state=directory
-    owner="{{ user_pihole }}"
-    group="{{ group_pihole }}"
-    mode=0755
-  tags: pihole
+- name: "Set default bash aliases"
+  copy: src=./files/etc_profile.d_bash_aliases.sh dest=/etc/profile.d/bash_aliases.sh mode=0600
+  tags:
+    - admin
 
-- name: Create pihole configuration
-  become: True
-  template:
-    src="setupVars.conf.j2"
-    dest="{{ fspath_pihole_config }}/setupVars.conf"
-    owner=root
-    group=root
-    mode=0644
-  tags: pihole
+- name: Install admin tools (python, nmap)
+  apt:
+    package:
+      - python-apt
+      - python-pip
+      - nmap
+    state: present
+  tags:
+    - admin
+# - name: Install grin (better grep)
+#   shell: pip install grin
+#   tags: admin
 
-- name: Set static IP configuration
-  become: True
-  template:
-    src="etc_network_interfaces.j2"
-    dest="/etc/network/interfaces"
-    owner=root
-    group=root
-    mode=0644
-  tags: pihole
+# - name: Set static IP configuration
+#   become: True
+#   template: src="etc_network_interfaces.j2"
+#     dest="/etc/network/interfaces"
+#     owner=root
+#     group=root
+#     mode=0644
+#   tags:
+#     - pihole
 
-- name: Set default DNS
-  become: True
-  template:
-    src="etc_resolf.conf.j2"
-    dest="/etc/resolv.conf"
-    owner=root
-    group=root
-    mode=0644
-  tags: admin
+# - name: Set default DNS
+#   become: True
+#   template: src="etc_resolf.conf.j2"
+#     dest="/etc/resolv.conf"
+#     owner=root
+#     group=root
+#     mode=0644
+#   tags: admin
 
-- name: Install Pi-Hole
-  shell: "~/install-pihole.sh --unattended"
-  register: dbg_install_pihole
-  tags: pihole
+# - name: "Reboot"
+#   shell: sleep 2 && reboot
+#   async: 1
+#   poll: 0
+#   ignore_errors: true
+#   tags:
+#     - pihole
 
-- name: Set static IP configuration
-  become: True
-  template:
-    src="etc_network_interfaces.j2"
-    dest="/etc/network/interfaces"
-    owner=root
-    group=root
-    mode=0644
-  tags: admin
-
-- name: Set PiHole to update every week
-  become: True
-  replace:
-    path: /etc/cron.d/pihole
-    regexp: '^#(.*updatePihole.*)$'
-    replace: '\1'
-    backup: yes
-  tags: admin
-
-- name: 'Reboot'
-  shell: sleep 2 && reboot
-  async: 1
-  poll: 0
-  ignore_errors: true
-  tags: pihole
-
-- name: "Wait for Raspberry PI to come back"
-  local_action: wait_for host={{ ansible_host }} port=22 state=started delay=10
-  become: false
+# - name: "Wait for Raspberry PI to come back"
+#   local_action: wait_for host={{ ansible_host }} port=22 state=started delay=10
+#   become: false
