@@ -40,6 +40,9 @@ https://github.com/geerlingguy/ansible-role-docker
 Also: 
 https://github.com/emielmolenaar/ansible-role-docker-pihole
 
+Also: 
+https://github.com/dev-sec/ansible-collection-hardening
+
 NOTE: This is a forked repo that is under active development / changes.
 The original readme is left below for now. 
 
