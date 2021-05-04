@@ -1,0 +1,66 @@
+---
+- name: "Setting hostname to 'pihole'"
+  hostname:
+    name: pihole
+  tags:
+    - adminPiHole
+
+- name: Update /etc/hosts/ to reflect new hostname
+  # I would have expected that the hostname directive would do this, but it does not.
+  #! This is important! If /etc/hosts does not contain the right hostname sudo directives
+  #! will be VERY slow.
+  lineinfile:
+    path: /etc/hosts
+    regex: "^127\\.0\\.1\\.1.*"
+    line: "127.0.1.1\tpihole"
+    state: present
+  tags:
+    - adminPiHole
+
+- name: Disable Wifi - not needed on pihole
+  shell: rfkill block wifi
+  tags:
+    - adminPiHole
+
+- name: Disable Bluetooth - not needed on pihole
+  shell: rfkill block bluetooth
+  tags:
+    - adminPiHole
+# - name: "Download Pi-Hole installer"
+#   get_url:
+#     url: https://install.pi-hole.net
+#     dest: ~/install-pihole.sh
+#     mode: 0740
+#   tags: pihole
+
+# - name: Create pihole configuration directory
+#   become: True
+#   file: name="{{ fspath_pihole_config }}"
+#     state=directory
+#     owner="{{ user_pihole }}"
+#     group="{{ group_pihole }}"
+#     mode=0755
+#   tags: pihole
+
+# - name: Create pihole configuration
+#   become: True
+#   template: src="setupVars.conf.j2"
+#     dest="{{ fspath_pihole_config }}/setupVars.conf"
+#     owner=root
+#     group=root
+#     mode=0644
+#   tags: pihole
+
+# - name: Install Pi-Hole
+#   shell: "~/install-pihole.sh --unattended"
+#   register: dbg_install_pihole
+#   tags: pihole
+
+# - name: Set PiHole to update every week
+#   become: True
+#   replace:
+#     path: /etc/cron.d/pihole
+#     regexp: "^#(.*updatePihole.*)$"
+#     replace: '\1'
+#     backup: yes
+#   tags: admin

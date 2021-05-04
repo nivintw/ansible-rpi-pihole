@@ -2,7 +2,11 @@
 ---
 - name: Ansible Playbook for configuring Pi-Hole on Raspberry Pi
   hosts: pihole
+  collections:
+    - devsec.hardening
   roles:
     - pi
+    - ssh_hardening
+    - pihole
   remote_user: pi
   become: yes

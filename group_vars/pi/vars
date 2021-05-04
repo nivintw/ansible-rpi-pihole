@@ -2,3 +2,8 @@
 # Add personal admin user
 personal_admin_user: "{{ vault_personal_admin_user }}"
 personal_admin_password: "{{ vault_personal_admin_password }}"
+
+# vars for ssh_hardening overrides.
+ssh_allow_users: "{{personal_admin_user}} pi"
+sftp_enabled: True
+ssh_print_last_log: True

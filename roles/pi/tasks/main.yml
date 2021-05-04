@@ -3,12 +3,40 @@
   community.general.timezone:
     name: America/Chicago
 
-- name: Set locale to en_US.UTF-8
+- name: Set country for Wifi
+  # Some systems I end up disabling the wifi, but it's still nice to set.
+  shell: iw reg set US
+
+- name: Install locale en_US.UTF-8
   community.general.locale_gen:
     name: en_US.UTF-8
     state: present
 
-- name: Add the personal user for administration - we will disable pi user login later.
+- name: Set locale en_US.UTF-8
+  command: "update-locale LANG=en_US.UTF-8"
+  register: locale
+
+- name: Change keyboard to us-layout
+  replace:
+    destfile: /etc/default/keyboard
+    regexp: '"gb"'
+    replace: '"us"'
+  ignore_errors: yes
+
+- name: edit boot config to allow for HDMI hotplug
+  #TODO: Also set default monitor res. to 1920x1080
+  # This won't be the "right" answer for all monitors,
+  # but will work for most and allow the hot-plug to not default to
+  # a VERY low resolution that definitely doesn't look good on a 1920x1080 monitor.
+  # To be clear: the below works as-is. The default resolution is just very low.
+  blockinfile:
+    path: /boot/config.txt
+    block: |
+      hdmi_force_hotplug=1
+  tags:
+    - piAdmin
+
+- name: Add the personal user for administration
   user:
     name: "{{ personal_admin_user }}"
     password: "{{ personal_admin_password | password_hash('sha512') }}"
@@ -27,6 +55,10 @@
 - name: Change default password for pi
   user:
     name: pi
+    #* Note: Right now, I think this is always changing the password.
+    # This might seem obvious looking at it, but reading the docs I thought it'd only change the password
+    # if the password was different from the currently set password.
+    #TODO: Check the above...
     password: "{{ lookup('password', '/tmp/passwordfile chars=ascii_letters,digits,punctuation') | password_hash('sha512')  }}"
     update_password: always
 
@@ -57,10 +89,6 @@
     name: cron
     state: present
     update_cache: false
-
-# - name: "Disable WIFI and Bluetooth"
-#   copy: src=./files/raspi-blacklist.conf dest=/etc/modprobe.d/raspi-blacklist.conf mode=0600
-#   tags: admin
 
 - name: "Set default bash aliases"
   copy: src=./files/etc_profile.d_bash_aliases.sh dest=/etc/profile.d/bash_aliases.sh mode=0600
