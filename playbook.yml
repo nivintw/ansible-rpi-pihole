@@ -8,5 +8,6 @@
     - pi
     - ssh_hardening
     - pihole
+    - geerlingguy.docker
   remote_user: pi
   become: yes

@@ -1,0 +1,7 @@
+---
+collections:
+  # Install collection for hardening
+  - name: devsec.hardening
+
+roles:
+  - name: geerlingguy.docker
