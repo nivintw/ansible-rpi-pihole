@@ -13,7 +13,7 @@ ssh_print_last_log: True
 # vars for docker
 # most defaults are good and don't need to be overridden
 docker_apt_arch: armhf
-docker_users: [nivintw]
+docker_users: "[{{personal_admin_user}}]"
 
 # His method of installing compose does not work on the pi
 docker_install_compose: false
