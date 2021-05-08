@@ -1,7 +1,0 @@
-gateway_ip: 192.168.0.1
-network_interface: eth0
-ipv4_static: True
-ipv4_address: "{{ hostvars[inventory_hostname]['ansible_' + network_interface]['ipv4']['address'] }}"
-# per default just use the first available ipv6 address on the interface
-# ipv6: True
-# ipv6_address: "{{ hostvars[inventory_hostname]['ansible_' + network_interface]['ipv6'][0]['address'] }}"

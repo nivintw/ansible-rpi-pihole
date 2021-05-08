@@ -26,6 +26,8 @@
   shell: rfkill block bluetooth
   tags:
     - adminPiHole
+# TODO: Is this next update section for the system?
+# That file doesn't seem to exist. maybe remove.
 # - name: Set PiHole to update every week
 #   become: True
 #   replace:

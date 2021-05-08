@@ -1,7 +1,13 @@
 ---
-- name: Set timezone to America/Chicago
+# This file contains tasks that configure a raspberry pi running Raspberry Pi OS.
+# Nothing here is specific to pihole or docker or anything else.
+# These tasks are just general configuration.
+
+# Update these tasks with values that are relevant to your situation
+# if they are different from the US-based defaults.
+- name: Set timezone to local timezone as appropriate.
   community.general.timezone:
-    name: America/Chicago
+    name: "{{ all_personal_TZ }}"
 
 - name: Set country for Wifi
   # Some systems I end up disabling the wifi, but it's still nice to set.
@@ -67,29 +73,44 @@
     update_cache: yes
   tags:
     - admin
+    - software
 
 - name: "Upgrade APT to the lastest packages"
   apt:
     upgrade: safe
+  tags:
+    - admin
+    - software
 
 - name: Install enhanced editor
   apt:
     name: vim
     state: present
     update_cache: false
+  tags:
+    - admin
+    - software
 
 - name: Install process observation tools
-  ansible.builtin.apt:
+  apt:
     name: htop
     state: present
     update_cache: false
+  tags:
+    - admin
+    - software
 
 - name: Install cron job scheduler
-  ansible.builtin.apt:
+  apt:
     name: cron
     state: present
     update_cache: false
+  tags:
+    - admin
+    - software
 
+# NOTE: Look at the aliases and decide if you want to edit or remove any of them.
+# They seem fine to me and came from another open source project so I left them.
 - name: "Set default bash aliases"
   copy: src=./files/etc_profile.d_bash_aliases.sh dest=/etc/profile.d/bash_aliases.sh mode=0600
   tags:
@@ -104,6 +125,7 @@
     state: present
   tags:
     - admin
+    - software
 # - name: Install grin (better grep)
 #   shell: pip install grin
 #   tags: admin
@@ -118,14 +140,14 @@
 #   tags:
 #     - pihole
 
-# - name: "Reboot"
-#   shell: sleep 2 && reboot
-#   async: 1
-#   poll: 0
-#   ignore_errors: true
-#   tags:
-#     - pihole
+- name: "Reboot"
+  shell: sleep 2 && reboot
+  async: 1
+  poll: 0
+  ignore_errors: true
+  tags:
+    - admin
 
-# - name: "Wait for Raspberry PI to come back"
-#   local_action: wait_for host={{ ansible_host }} port=22 state=started delay=10
-#   become: false
+- name: "Wait for Raspberry PI to come back"
+  local_action: wait_for host={{ ansible_host }} port=22 state=started delay=10
+  become: false

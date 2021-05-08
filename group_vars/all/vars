@@ -1,0 +1,4 @@
+# There are a number of opportunities to set the timezone when configuring this system.
+# Setting the TZ value here (and referring to it in other places)
+# allows a single source of truth for the desired timezone.
+all_personal_TZ: "America/Chicago"

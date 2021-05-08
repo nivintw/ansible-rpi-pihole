@@ -1,0 +1,14 @@
+# Add our hosts to the all group.
+# For this project, I just have one physical host.
+all:
+  hosts:
+    pihole:
+      # update ansible_host to have the current IP address of the device you want to configure.
+      ansible_host: "192.168.1.100"
+      ansible_connection: ssh
+      ansible_ssh_user: pi
+
+# Add the pihole host defined above to the pi group.
+# This will allow it to refer to the group_vars/pi/ variables.
+pi:
+  hosts: pihole

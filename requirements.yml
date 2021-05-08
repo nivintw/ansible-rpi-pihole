@@ -1,5 +1,8 @@
 ---
 collections:
+  # Install community.general for a number of things.
+  - name: community.general
+
   # Install collection for hardening
   - name: devsec.hardening
 
