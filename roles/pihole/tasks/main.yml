@@ -26,36 +26,6 @@
   shell: rfkill block bluetooth
   tags:
     - adminPiHole
-# - name: "Download Pi-Hole installer"
-#   get_url:
-#     url: https://install.pi-hole.net
-#     dest: ~/install-pihole.sh
-#     mode: 0740
-#   tags: pihole
-
-# - name: Create pihole configuration directory
-#   become: True
-#   file: name="{{ fspath_pihole_config }}"
-#     state=directory
-#     owner="{{ user_pihole }}"
-#     group="{{ group_pihole }}"
-#     mode=0755
-#   tags: pihole
-
-# - name: Create pihole configuration
-#   become: True
-#   template: src="setupVars.conf.j2"
-#     dest="{{ fspath_pihole_config }}/setupVars.conf"
-#     owner=root
-#     group=root
-#     mode=0644
-#   tags: pihole
-
-# - name: Install Pi-Hole
-#   shell: "~/install-pihole.sh --unattended"
-#   register: dbg_install_pihole
-#   tags: pihole
-
 # - name: Set PiHole to update every week
 #   become: True
 #   replace:
