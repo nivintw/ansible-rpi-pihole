@@ -1,17 +1,3 @@
-# toplevel_timeservers: ["pool.ntp.org", "time.google.com"]
-
-# Source: https://github.com/fheinle/ansible-pihole/blob/master/defaults/main.yml
-user_pihole: "pihole"
-group_pihole: "pihole"
-
-# git_repo_web_interface: "https://github.com/pi-hole/AdminLTE.git"
-# git_repo_core: "https://github.com/fheinle/pi-hole.git"
-# fspath_web_interface: "/var/www/admin"
-# fspath_web_directory: "/var/www/pihole"
-# fspath_pihole: "/opt/pihole"
-# fspath_pihole_src: "/etc/.pihole"
-# fspath_pihole_config: "/etc/pihole"
-
 gateway_ip: 192.168.0.1
 network_interface: eth0
 ipv4_static: True
