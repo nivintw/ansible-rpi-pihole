@@ -12,3 +12,6 @@ all:
 # This will allow it to refer to the group_vars/pi/ variables.
 pi:
   hosts: pihole
+
+piholeDocker:
+  hosts: pihole

@@ -2,3 +2,6 @@
 # Setting the TZ value here (and referring to it in other places)
 # allows a single source of truth for the desired timezone.
 all_personal_TZ: "America/Chicago"
+
+# The hostname for the pi device that will host the software stack.
+all_pihole_host_hostname: "pihole"

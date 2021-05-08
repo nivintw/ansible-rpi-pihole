@@ -1,0 +1,20 @@
+# This file includes over-ride variables for the pi-hole docker container
+
+# vars for geerlingguy.docker
+# most defaults are good and don't need to be overridden
+docker_apt_arch: armhf
+docker_users:
+  - "{{ personal_admin_user }}"
+
+# His method of installing compose does not work on the pi
+# I don't remember if it's because of the device or the OS.
+# I think it's related to the device architecture.
+docker_install_compose: false
+
+# Specifying this option without a value will configure pihole
+# to NOT have an admin password on the web interface.
+# This is probably NOT what you want.
+# Setting this value here overrides the value in the role default.
+docker_pihole_admin_password: "{{ vault_docker_pihole_admin_password }}"
+
+docker_pihole_ipv4_address: "{{ vault_docker_pihole_ipv4_address }}"

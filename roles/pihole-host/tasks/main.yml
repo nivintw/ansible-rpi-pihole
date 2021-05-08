@@ -1,10 +1,4 @@
 ---
-- name: "Setting hostname to 'pihole'"
-  hostname:
-    name: pihole
-  tags:
-    - adminPiHole
-
 - name: Update /etc/hosts/ to reflect new hostname
   # I would have expected that the hostname directive would do this, but it does not.
   #! This is important! If /etc/hosts does not contain the right hostname sudo directives
@@ -14,6 +8,12 @@
     regex: "^127\\.0\\.1\\.1.*"
     line: "127.0.1.1\tpihole"
     state: present
+  tags:
+    - adminPiHole
+
+- name: "Setting hostname to {{ all_pihole_host_hostname }}"
+  hostname:
+    name: "{{ all_pihole_host_hostname }}"
   tags:
     - adminPiHole
 
