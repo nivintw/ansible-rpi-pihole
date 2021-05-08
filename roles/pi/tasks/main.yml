@@ -151,3 +151,5 @@
 - name: "Wait for Raspberry PI to come back"
   local_action: wait_for host={{ ansible_host }} port=22 state=started delay=10
   become: false
+  tags:
+    - admin
