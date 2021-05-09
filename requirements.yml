@@ -1,3 +1,5 @@
+# ansible-galaxy install -r requirements.yml to install the requirements on the ansible controller.
+
 ---
 collections:
   # Install community.general for a number of things.

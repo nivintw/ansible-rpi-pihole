@@ -13,5 +13,6 @@ all:
 pi:
   hosts: pihole
 
+# Likewise to the piholeDocker group for the same reason.
 piholeDocker:
   hosts: pihole
