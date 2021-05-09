@@ -6,20 +6,18 @@
   collections:
     - devsec.hardening
   roles:
-    - pi
+    - role: pi
+      tags:
+        - baseConfigRole
     - ssh_hardening
     - pihole-host
     - geerlingguy.docker
-    - geerlingguy.pip
+    - role: geerlingguy.pip
+      vars:
+        pip_install_packages:
+          - name:
+              - docker
     - docker-container-pihole
-  vars:
-    # For geerlinguy.pip
-    # Allows control of docker images and containers from ansible.
-    # Not currently using compose, but if you want it uncomment the line.
-    pip_install_packages:
-      - name:
-          - docker
-          # - docker-compose
 
   remote_user: pi
   become: yes
