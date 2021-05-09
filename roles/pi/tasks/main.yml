@@ -11,7 +11,12 @@
 
 - name: Set country for Wifi
   # Some systems I end up disabling the wifi, but it's still nice to set.
-  shell: iw reg set US
+  # shell: iw reg set US
+  lineinfile:
+    path: /etc/wpa_supplicant/wpa_supplicant.conf
+    state: present
+    regexp: "country=.*"
+    line: "country={{ all_personal_country }}"
 
 - name: Install locale en_US.UTF-8
   community.general.locale_gen:
@@ -129,16 +134,6 @@
 # - name: Install grin (better grep)
 #   shell: pip install grin
 #   tags: admin
-
-# - name: Set static IP configuration
-#   become: True
-#   template: src="etc_network_interfaces.j2"
-#     dest="/etc/network/interfaces"
-#     owner=root
-#     group=root
-#     mode=0644
-#   tags:
-#     - pihole
 
 - name: "Reboot"
   shell: sleep 2 && reboot
