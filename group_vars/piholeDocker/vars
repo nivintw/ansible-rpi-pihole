@@ -1,6 +1,6 @@
 # This file includes over-ride variables for the pi-hole docker container
 
-# vars for geerlingguy.docker
+#######  vars for geerlingguy.docker #######
 # most defaults are good and don't need to be overridden
 docker_apt_arch: armhf
 docker_users:
@@ -11,6 +11,8 @@ docker_users:
 # I think it's related to the device architecture.
 docker_install_compose: false
 
+######## Vars for the pihole docker container ############
+
 # Specifying this option without a value will configure pihole
 # to NOT have an admin password on the web interface.
 # This is probably NOT what you want.
@@ -18,3 +20,12 @@ docker_install_compose: false
 docker_pihole_admin_password: "{{ vault_docker_pihole_admin_password }}"
 
 docker_pihole_ipv4_address: "{{ vault_docker_pihole_ipv4_address }}"
+
+#TODO: Maybe move these to the pi section?
+# They really are for the pi itself, but I want the interface specified in one place... hm...
+####### Vars for the pi host vlans (optional step) #########
+docker_pihole_network_interface: "eth0"
+docker_pihole_vlans:
+  - "20"
+  - "30"
+  - "40"

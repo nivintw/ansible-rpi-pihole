@@ -7,3 +7,6 @@ personal_admin_password: "{{ vault_personal_admin_password }}"
 ssh_allow_users: "{{personal_admin_user}} pi"
 sftp_enabled: True
 ssh_print_last_log: True
+
+# Gateway for static IP and vlan configuration
+lan_gateway: "{{ vault_lan_gateway }}"
