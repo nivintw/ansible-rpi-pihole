@@ -90,7 +90,7 @@ https://github.com/emielmolenaar/ansible-role-docker-pihole
 Also: 
 https://github.com/dev-sec/ansible-collection-hardening
 
-I don't know how much actually remains of the original fork, but I wanted to try to give credit everywhere it is due. If you find references or code that looks like another project it almost certainly was at least inspired by it. Omission of a reference is strictly accidentle and I will happily add anyone i've forgotten.
+I don't know how much actually remains of the original fork, but I wanted to try to give credit everywhere it is due. If you find references or code that looks like another project it almost certainly was at least inspired by it. Omission of a reference is strictly accidental and I will happily add anyone i've forgotten.
 
 
 
