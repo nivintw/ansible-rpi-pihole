@@ -8,7 +8,7 @@ In case you have a background in this area and want to see the tech stack here i
 
   1. Ansible, including ansible-vault for secrets
   1. Docker
-  1. SSH Hardening via https://github.com/dev-sec/ansible-ssh-hardening
+  1. SSH Hardening via https://github.com/dev-sec/ansible-collection-hardening
   1. [Raspberry Pi OS](https://www.raspberrypi.org/software/operating-systems/)
   1. Public Key Infrastructure
   1. Pi-hole ad blocking
@@ -30,7 +30,7 @@ Likewise if you want to see some of the key changes I try ensure happen with thi
   1. Add pi host to multiple vlans (optional and dependent on your local network configuration)
   1. Set user-defined password for pihole web admin interface
   1. Add local admin user to docker group for docker control
-  1. General ssh hardening as provided by [ansible-ssh-hardening](https://github.com/dev-sec/ansible-ssh-hardening)
+  1. General ssh hardening as provided by [ansible-ssh-hardening](https://github.com/dev-sec/ansible-collection-hardening)
   1. Disable wifi and bluetooth
       - These are not needed for this system, you can change as you see fit for yours
 
