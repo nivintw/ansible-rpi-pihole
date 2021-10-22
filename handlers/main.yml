@@ -1,0 +1,13 @@
+---
+- name: Reboot Pi
+  shell: sleep 2 && reboot
+  async: 1
+  poll: 0
+  ignore_errors: true
+  tags:
+    - pihole
+  notify: Wait for Raspberry PI to come back
+
+- name: Wait for Raspberry PI to come back
+  local_action: wait_for host={{ ansible_host }} port=22 state=started delay=10
+  become: false
