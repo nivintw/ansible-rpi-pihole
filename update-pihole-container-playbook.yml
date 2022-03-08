@@ -1,6 +1,6 @@
 # Command to use to run the pihole container update (will update the base image and rebuild).
 # ansible-playbook update-pihole-container-playbook.yml --ask-vault-pass
-
+# ansible-playbook --vault-id general_ansible@~/ansible-general-vault-op-client.sh update-pihole-container-playbook.yml
 ---
 - name: Ansible Playbook for updating the pihole container image.
   hosts: pihole
@@ -10,5 +10,5 @@
         name: docker-container-pihole
         tasks_from: update_pihole_base
 
-  remote_user: pi
+  remote_user: nivintw
   become: yes
