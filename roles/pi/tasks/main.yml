@@ -124,8 +124,8 @@
 - name: Install admin tools (python, nmap)
   apt:
     package:
-      - python-apt
-      - python-pip
+      - python3-apt
+      - python3-pip
       - nmap
     state: present
   tags:
