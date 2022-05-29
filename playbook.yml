@@ -1,5 +1,5 @@
 # Command to use to run the entire setup.
-# ansible-playbook playbook.yml --ask-vault-pass
+# ansible-playbook --vault-id general_ansible@~/ansible-general-vault-op-client.sh playbook.yml
 ---
 - name: Ansible Playbook for configuring Pi-Hole on Raspberry Pi
   hosts: pihole
