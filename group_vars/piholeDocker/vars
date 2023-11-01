@@ -1,5 +1,5 @@
 ---
-# ansible-vault decrypt --vault-id general_ansible@~/ansible-general-vault-op-client.sh piholeDocker/vault
+# ansible-vault decrypt --vault-id general_ansible@~/ansible-general-vault-op-client.sh group_vars/piholeDocker/vault
 # This file includes over-ride variables for the pi-hole docker container
 
 #######  vars for geerlingguy.docker #######

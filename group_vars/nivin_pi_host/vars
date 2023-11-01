@@ -1,5 +1,5 @@
 ---
-# ansible-vault decrypt --vault-id general_ansible@~/ansible-general-vault-op-client.sh pi/vault
+# ansible-vault decrypt --vault-id general_ansible@~/ansible-general-vault-op-client.sh group_vars/nivin_pi_host/vault
 
 # Add personal admin user
 personal_admin_user: "{{ vault_personal_admin_user }}"
