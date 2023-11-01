@@ -1,5 +1,5 @@
 ---
-# ansible-vault decrypt --vault-id general_ansible@~/ansible-general-vault-op-client.sh piholeDocker/vault pi/vault
+# ansible-vault decrypt --vault-id general_ansible@~/ansible-general-vault-op-client.sh pi/vault
 
 # Add personal admin user
 personal_admin_user: "{{ vault_personal_admin_user }}"

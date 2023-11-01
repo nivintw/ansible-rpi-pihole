@@ -1,8 +1,0 @@
-{% for vlanNumber in docker_pihole_vlans%} 
-interface {{docker_pihole_network_interface}}.{{vlanNumber}}
-static ip_address={{ docker_pihole_ipv4_address | regex_replace('^(\\d+)\.(\\d+)\.(\\d+)\.(\\d+)$', '\\1.\\2.' + vlanNumber + '.\\4/24') }}
-{# Alternative method #}
-{# static ip_address={{ ip_components[0] + '.' + ip_components[1] + '.' + vlanNumber + '.' ip_components[3] }} #}
-static routers={{ lan_gateway | regex_replace('^(\\d+)\.(\\d+)\.(\\d+)\.(\\d+)$', '\\1.\\2.' + vlanNumber + '.\\4') }}
-
-{% endfor %}

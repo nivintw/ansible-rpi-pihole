@@ -1,0 +1,14 @@
+# Command to use to run the entire setup.
+# ansible-playbook --vault-id general_ansible@~/ansible-general-vault-op-client.sh 03-update-pihole-unbound-container.yml
+
+---
+- name: Ansible Playbook for configuring vlans on the pi host.
+  hosts: pihole
+
+  tasks:
+    - name: Update the pihole-unbound container using podman.
+      ansible.builtin.include_role:
+        name: pihole-unbound-podman
+        tasks_from: update_pihole_base
+
+  remote_user: "{{ vault_personal_admin_user }}"

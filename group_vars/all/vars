@@ -6,3 +6,5 @@ all_personal_country: "US"
 
 # The hostname for the pi device that will host the software stack.
 all_pihole_host_hostname: "pihole"
+
+all_ssh_public_key_path: "{{ lookup('env', 'HOME') + '/.ssh/id_rsa.pub' }}"

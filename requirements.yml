@@ -8,6 +8,10 @@ collections:
   # Install collection for hardening
   - name: devsec.hardening
 
-roles:
-  - name: geerlingguy.docker
-  - name: geerlingguy.pip
+  # My own personal collection.
+  - name: https://github.com/nivintw/ansible-rpi-nivintw-baseline.git
+    version: main
+    type: git
+
+  # For creating images / containers using podman
+  - name: containers.podman

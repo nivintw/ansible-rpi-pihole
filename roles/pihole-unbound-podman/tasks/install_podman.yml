@@ -1,0 +1,6 @@
+---
+- name: "Ensure podman is available"
+  ansible.builtin.apt:
+    name: podman
+    state: present
+  become: true

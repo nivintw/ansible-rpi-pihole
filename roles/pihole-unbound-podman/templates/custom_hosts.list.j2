@@ -1,0 +1,5 @@
+# {{ ansible_managed }}
+
+{% for host in docker_pihole_dns_custom_hosts %}
+{{ host.ip }}  {{ host.name }} {{ host.aliases | default('') | join(' ') }}
+{% endfor %}

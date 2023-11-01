@@ -1,0 +1,8 @@
+# Command to use to run the entire setup.
+# ansible-playbook --vault-id general_ansible@~/ansible-general-vault-op-client.sh 01-setup-playbook.yml
+---
+- name: Configure baseline for Raspberry Pi
+  ansible.builtin.import_playbook: nivintw.raspberry_pi_baseline.configure_cloudpi_base
+
+- name: Harden Raspberry Pi
+  ansible.builtin.import_playbook: nivintw.raspberry_pi_baseline.harden_cloudpi

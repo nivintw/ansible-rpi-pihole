@@ -1,0 +1,18 @@
+# This set of tasks can be used to update the pihole container.
+# The main difference between this and main.yml is this module assumes podman is already installed.
+---
+- name: "Set the __docker_pihole_admin_password fact"
+  ansible.builtin.set_fact:
+    __docker_pihole_random_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+    __docker_pihole_admin_password: "{{ docker_pihole_admin_password | default(__docker_pihole_random_password) }}"
+
+- name: Copy Container Image Build Files to host for building.
+  ansible.builtin.copy:
+    src: pihole_unbound
+    dest: /tmp
+    force: true
+    mode: "0644"
+
+- name: "Build and create pihole unbound container"
+  ansible.builtin.import_tasks: init_pihole_unbound_container.yml
+  when: ansible_facts["os_family"] == "Debian"

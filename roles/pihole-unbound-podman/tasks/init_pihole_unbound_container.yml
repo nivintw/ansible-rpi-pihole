@@ -1,0 +1,46 @@
+---
+- name: "[docker] Build pihole image with unbound added"
+  become: true
+  containers.podman.podman_image:
+    path: "/tmp/pihole_unbound"
+    # NOTE: force the image to be built, even if it already exist.
+    # Only useful while developing the ansible project itself.
+    pull: false
+    state: present
+    force: true # temporary
+    name: "{{ docker_pihole_image_name }}"
+
+- name: "[docker] Setup the pi-hole docker container"
+  become: true
+  containers.podman.podman_container:
+    debug: false
+    detach: true
+    name: "{{ docker_pihole_container_name }}"
+    image: "{{ docker_pihole_image_name }}"
+    init: false
+    state: started
+    recreate: true
+    restart_policy: on-failure:3
+    volumes: "{{ docker_pihole_volumes }}"
+    env:
+      TZ: "{{ docker_pihole_timezone }}"
+      WEBPASSWORD: "{{ __docker_pihole_admin_password }}"
+      # Use our unbound recursive DNS server as the upstream.
+      # The semicolon at the end ensures that the recursive unbound server
+      # is the ONLY upstream. Without it the pihole image sets a backup default upstream DNS server.
+      PIHOLE_DNS_: 127.0.0.1#5335;
+      # Make re-directing from / to /admin work automatically
+      # by setting VIRTUAL_HOST to e.g. pihole.mydomain.tld
+      VIRTUAL_HOST: "{{ docker_pihole_domain }}"
+    # This set the DNS servers for the container, but not the upstream DNS providers for pihole.
+    dns_servers: "{{ docker_pihole_dns_servers }}"
+    published_ports:
+      - "80:80/tcp"
+      - "443:443/tcp"
+      - "53:53/udp"
+      - "53:53/tcp"
+      - "67:67/udp"
+
+- name: Setup custom hosts
+  ansible.builtin.include_tasks: custom_hosts.yml
+  when: docker_pihole_dns_custom_hosts | length > 0

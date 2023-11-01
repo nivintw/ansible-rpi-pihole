@@ -1,6 +1,0 @@
-# {{ ansible_managed }}
-{% for vlanNumber in docker_pihole_vlans%} 
-auto {{docker_pihole_network_interface}}.{{vlanNumber}}
-iface {{docker_pihole_network_interface}}.{{vlanNumber}} inet manual
-  vlan-raw-device {{docker_pihole_network_interface}}
-{% endfor %}

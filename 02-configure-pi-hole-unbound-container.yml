@@ -1,0 +1,9 @@
+# Command to use to run the entire setup.
+# ansible-playbook --vault-id general_ansible@~/ansible-general-vault-op-client.sh 02-configure-pi-hole-unbound-container.yml
+---
+- name: Configure Pi-Hole on Raspberry Pi
+  hosts: pihole
+  roles:
+    - pihole-unbound-podman
+
+  remote_user: "{{ vault_personal_admin_user }}"
