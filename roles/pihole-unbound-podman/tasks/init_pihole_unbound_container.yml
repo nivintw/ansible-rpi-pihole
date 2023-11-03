@@ -6,7 +6,7 @@
     # NOTE: force the image to be built, even if it already exist.
     # Only useful while developing the ansible project itself.
     pull: false
-    state: present
+    state: build
     force: true # temporary
     name: "{{ docker_pihole_image_name }}"
 
