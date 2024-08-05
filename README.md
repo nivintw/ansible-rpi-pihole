@@ -92,7 +92,31 @@ https://github.com/dev-sec/ansible-collection-hardening
 
 I don't know how much actually remains of the original fork, but I wanted to try to give credit everywhere it is due. If you find references or code that looks like another project it almost certainly was at least inspired by it. Omission of a reference is strictly accidental and I will happily add anyone i've forgotten.
 
-## Installation
+## Installing Ansible on your computer
+
+As mentioned above, much of the configuration is managed via [ansible](https://docs.ansible.com/).
+This section includes instructions to install Ansible on your local machine if you do not already have it installed.
+
+### Using pipx - Recommended Approach
+
+Using pipx to manage python-based command line utilities (like ansible!) is highly recommended.
+In short, it allows you to install and run python applications in isolated environments. See [the pipx official site](https://pipx.pypa.io/stable/) for more information.
+
+Full instructions for installing ansible with pipx can be found on the ansibile documentation site [here](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-and-upgrading-ansible-with-pipx).
+
+Alternatively, use the below to just install the full Ansible package if you want to skip the external docs.
+
+```sh
+pipx install --include-deps ansible
+```
+
+### Other Install Options
+
+For alternative install options for ansible, see the official documentation available [here](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html).
+Alternative options include using pip, OCI containers, and development install options.
+For most people, the `pipx` based installation will be what you want.
+
+## Playbook Installation (I.e. This Repository)
 
 On your local computer, clone and setup this ansible playbook.
 
@@ -123,25 +147,4 @@ Or:
 
 ```
 ansible-playbook playbook.yml -i hosts --ask-pass --become -c paramiko
-```
-
-## Installing Ansible on your computer
-
-### On Mac with Homebrew
-
-```
-brew install ansible
-```
-
-### On Mac without Homebrew
-
-```
-cd /tmp
-git clone git://github.com/ansible/ansible.git
-cd ./ansible
-git checkout v1.4.3
-sudo make install
-sudo easy_install jinja2
-sudo easy_install pyyaml
-sudo easy_install paramiko
 ```
