@@ -6,7 +6,6 @@
     owner: root
     group: root
     mode: "0644"
-  notify: restart pihole container
 
 - name: Setup dnsmasq configuration file to include custom host list
   ansible.builtin.template:
@@ -15,4 +14,3 @@
     owner: root
     group: root
     mode: "0644"
-  notify: restart pihole container

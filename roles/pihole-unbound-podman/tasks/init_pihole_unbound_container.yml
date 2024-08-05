@@ -17,6 +17,10 @@
     force: true # temporary
     name: "{{ oci_pihole_image_name }}"
 
+- name: "[OCI / Podman] Setup custom hosts files"
+  ansible.builtin.include_tasks: custom_hosts.yml
+  when: docker_pihole_dns_custom_hosts | length > 0
+
 - name: "[OCI / Podman] Setup the pi-hole OCI container"
   become: true
   containers.podman.podman_container:
@@ -53,7 +57,3 @@
       - |
         [Install]
         WantedBy=default.target
-
-- name: Setup custom hosts
-  ansible.builtin.include_tasks: custom_hosts.yml
-  when: docker_pihole_dns_custom_hosts | length > 0
