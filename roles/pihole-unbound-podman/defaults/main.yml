@@ -14,11 +14,11 @@ docker_pihole_purge_networks: true
 # This is probably NOT what you want.
 docker_pihole_admin_password:
 
-docker_pihole_host_dir_dnsmasqd: /etc/dnsmasq.d/
-docker_pihole_host_dir_pihole: /etc/pihole/
-docker_pihole_volumes:
-  - "{{ docker_pihole_host_dir_pihole }}:/etc/pihole/"
-  - "{{ docker_pihole_host_dir_dnsmasqd }}:/etc/dnsmasq.d/"
+oci_pihole_host_dir_dnsmasqd: /etc/dnsmasq.d/
+oci_pihole_host_dir_pihole: /etc/pihole/
+oci_container_pihole_volumes:
+  - "{{ oci_pihole_host_dir_pihole }}:/etc/pihole/"
+  - "{{ oci_pihole_host_dir_dnsmasqd }}:/etc/dnsmasq.d/"
 
 # The timezone that pihole container will use
 docker_pihole_timezone: "{{ all_personal_TZ }}"
@@ -32,8 +32,8 @@ docker_pihole_dns_custom_hosts: []
 #      - beer
 #      - pizza
 
-docker_pihole_dns_custom_hosts_path: "{{ docker_pihole_host_dir_pihole }}custom_hosts.list"
-docker_pihole_dns_custom_hosts_dnsmasq_conf_path: "{{ docker_pihole_host_dir_dnsmasqd }}99-custom-hosts.conf"
+docker_pihole_dns_custom_hosts_path: "{{ oci_pihole_host_dir_pihole }}custom_hosts.list"
+docker_pihole_dns_custom_hosts_dnsmasq_conf_path: "{{ oci_pihole_host_dir_dnsmasqd }}99-custom-hosts.conf"
 
 # Used to set what DNS the container will use.
 # This does NOT set the upstream DNS servers for pihole.

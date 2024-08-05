@@ -13,15 +13,14 @@
 - name: "[OCI / Podman] Setup the pi-hole OCI container"
   become: true
   containers.podman.podman_container:
-    debug: false
-    detach: true
-    name: "{{ oci_pihole_container_name }}"
     image: "{{ oci_pihole_image_name }}"
-    init: false
-    state: started
+    name: "{{ oci_pihole_container_name }}"
     recreate: true
     restart_policy: on-failure:3
-    volumes: "{{ docker_pihole_volumes }}"
+    # state: quadlet should (ideally) ensure the container is always running under
+    # systemd, even after e.g. a power failure / reboot.
+    state: quadlet
+    volumes: "{{ oci_container_pihole_volumes }}"
     env:
       TZ: "{{ docker_pihole_timezone }}"
       WEBPASSWORD: "{{ __docker_pihole_admin_password }}"
@@ -32,7 +31,7 @@
       # Make re-directing from / to /admin work automatically
       # by setting VIRTUAL_HOST to e.g. pihole.mydomain.tld
       VIRTUAL_HOST: "{{ pihole_domain_name }}"
-    # This set the DNS servers for the container, but not the upstream DNS providers for pihole.
+    # This sets the DNS servers for the container, but not the upstream DNS providers for pihole.
     dns_servers: "{{ docker_pihole_dns_servers }}"
     published_ports:
       - "80:80/tcp"
@@ -40,6 +39,13 @@
       - "53:53/udp"
       - "53:53/tcp"
       - "67:67/udp"
+    quadlet_options:
+      # The below ensures that the container starts at boot.
+      # Without this, the quadlet will be generated, but the container will not
+      # be started at boot.
+      - |
+        [Install]
+        WantedBy=default.target
 
 - name: Setup custom hosts
   ansible.builtin.include_tasks: custom_hosts.yml

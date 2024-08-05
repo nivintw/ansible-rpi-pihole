@@ -1,6 +1,6 @@
 ---
 - name: Restart pihole container
   community.docker.docker_container:
-    name: "{{ docker_pihole_container_name }}"
+    name: "{{ oci_pihole_container_name }}"
     state: started
     restart: true
