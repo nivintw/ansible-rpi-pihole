@@ -9,7 +9,7 @@ collections:
   - name: devsec.hardening
 
   # My own personal collection.
-  - name: https://github.com/nivintw/ansible-rpi-nivintw-baseline.git
+  - name: git@github.com:nivintw/ansible-rpi-nivintw-baseline.git
     version: main
     type: git
 
