@@ -1,5 +1,5 @@
 ---
-- name: "[docker] Build pihole image with unbound added"
+- name: "[OCI / Podman] Build pihole image with unbound added"
   become: true
   containers.podman.podman_image:
     path: "/tmp/pihole_unbound"
@@ -10,7 +10,7 @@
     force: true # temporary
     name: "{{ docker_pihole_image_name }}"
 
-- name: "[docker] Setup the pi-hole docker container"
+- name: "[OCI / Podman] Setup the pi-hole OCI container"
   become: true
   containers.podman.podman_container:
     debug: false
