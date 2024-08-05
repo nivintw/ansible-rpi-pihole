@@ -1,12 +1,12 @@
 ---
-docker_pihole_container_name: pihole
-docker_pihole_image_name: pihole-image
+oci_pihole_container_name: pihole
+oci_pihole_image_name: pihole-image
 
 # docker_pihole_network: bridge
 docker_pihole_network_interface: "{{ docker_pihole_network_interface }}"
 
 # This is an example and should be over-ridden
-docker_pihole_ipv4_address: 192.168.1.100
+oci_pihole_ipv4_address: 192.168.1.100
 docker_pihole_purge_networks: true
 
 # Specifying this option without a value will configure pihole
@@ -23,7 +23,7 @@ docker_pihole_volumes:
 # The timezone that pihole container will use
 docker_pihole_timezone: "{{ all_personal_TZ }}"
 # TODO: abstract this.
-docker_pihole_domain: pihole.nivin.tech
+pihole_domain_name: pihole.nivin.tech
 
 docker_pihole_dns_custom_hosts: []
 #  - name: somehost

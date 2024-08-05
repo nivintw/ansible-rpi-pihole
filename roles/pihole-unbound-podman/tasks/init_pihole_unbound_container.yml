@@ -8,15 +8,15 @@
     pull: false
     state: build
     force: true # temporary
-    name: "{{ docker_pihole_image_name }}"
+    name: "{{ oci_pihole_image_name }}"
 
 - name: "[OCI / Podman] Setup the pi-hole OCI container"
   become: true
   containers.podman.podman_container:
     debug: false
     detach: true
-    name: "{{ docker_pihole_container_name }}"
-    image: "{{ docker_pihole_image_name }}"
+    name: "{{ oci_pihole_container_name }}"
+    image: "{{ oci_pihole_image_name }}"
     init: false
     state: started
     recreate: true
@@ -31,7 +31,7 @@
       PIHOLE_DNS_: 127.0.0.1#5335;
       # Make re-directing from / to /admin work automatically
       # by setting VIRTUAL_HOST to e.g. pihole.mydomain.tld
-      VIRTUAL_HOST: "{{ docker_pihole_domain }}"
+      VIRTUAL_HOST: "{{ pihole_domain_name }}"
     # This set the DNS servers for the container, but not the upstream DNS providers for pihole.
     dns_servers: "{{ docker_pihole_dns_servers }}"
     published_ports:

@@ -16,7 +16,7 @@ docker_users:
 # Setting this value here overrides the value in the role default.
 docker_pihole_admin_password: "{{ vault_docker_pihole_admin_password }}"
 
-docker_pihole_ipv4_address: "{{ vault_docker_pihole_ipv4_address }}"
+oci_pihole_ipv4_address: "{{ vault_oci_pihole_ipv4_address }}"
 
 ####### Vars for the pi host vlans (optional step, comment out to not use.) #########
 docker_pihole_vlans:
