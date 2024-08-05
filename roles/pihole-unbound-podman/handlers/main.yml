@@ -1,6 +1,6 @@
 ---
-- name: Restart pihole container
-  community.docker.docker_container:
+- name: "[OCI / Podman] Restart pihole container"
+  containers.podman.podman_container:
     name: "{{ oci_pihole_container_name }}"
     state: started
     restart: true
