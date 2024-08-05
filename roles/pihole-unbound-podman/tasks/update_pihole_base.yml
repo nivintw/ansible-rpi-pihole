@@ -13,6 +13,14 @@
     force: true
     mode: "0644"
 
-- name: "Build and create pihole unbound container"
+- name: "[OCI / Podman] Force OCI pull of upstream docker.io/pihole/pihole:latest container image"
+  become: true
+  containers.podman.podman_image:
+    name: docker.io/pihole/pihole:latest
+    pull: true
+    state: present
+    force: true # Force the image to be pulled, since we use the latest tag.
+
+- name: "[OCI / Podman] Build and create pihole unbound container"
   ansible.builtin.import_tasks: init_pihole_unbound_container.yml
   when: ansible_facts["os_family"] == "Debian"

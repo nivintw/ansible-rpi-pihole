@@ -1,4 +1,11 @@
 ---
+- name: "[OCI / Podman] Pull of upstream docker.io/pihole/pihole:latest container image"
+  become: true
+  containers.podman.podman_image:
+    name: docker.io/pihole/pihole:latest
+    pull: true
+    state: present
+
 - name: "[OCI / Podman] Build pihole image with unbound added"
   become: true
   containers.podman.podman_image:
