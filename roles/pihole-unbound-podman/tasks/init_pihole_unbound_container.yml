@@ -33,8 +33,8 @@
     state: quadlet
     volumes: "{{ oci_container_pihole_volumes }}"
     env:
-      TZ: "{{ docker_pihole_timezone }}"
-      WEBPASSWORD: "{{ __docker_pihole_admin_password }}"
+      TZ: "{{ oci_pihole_container_timezone }}"
+      WEBPASSWORD: "{{ __pihole_service_admin_password }}"
       # Use our unbound recursive DNS server as the upstream.
       # The semicolon at the end ensures that the recursive unbound server
       # is the ONLY upstream. Without it the pihole image sets a backup default upstream DNS server.
@@ -57,3 +57,15 @@
       - |
         [Install]
         WantedBy=default.target
+
+- name: "[systemd] Force systemd to reread configs (2.4 and above)"
+  become: true
+  ansible.builtin.systemd_service:
+    # This should hopefully process our newly generated quadlet files
+    # and result in the container being created/started without
+    # requiring a separate reboot.
+    # NOTE: Starting the container on boot should in theory be handled by the
+    # existence of the quadlet files.
+    daemon_reload: true
+    name: "container-{{ oci_pihole_container_name }}"
+    state: started

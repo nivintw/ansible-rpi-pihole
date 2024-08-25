@@ -2,6 +2,9 @@
 oci_pihole_container_name: pihole
 oci_pihole_image_name: pihole-image
 
+# The timezone that pihole container will use
+oci_pihole_container_timezone: "{{ all_personal_TZ }}"
+
 # docker_pihole_network: bridge
 docker_pihole_network_interface: "{{ docker_pihole_network_interface }}"
 
@@ -20,8 +23,9 @@ oci_container_pihole_volumes:
   - "{{ oci_pihole_host_dir_pihole }}:/etc/pihole/"
   - "{{ oci_pihole_host_dir_dnsmasqd }}:/etc/dnsmasq.d/"
 
-# The timezone that pihole container will use
-docker_pihole_timezone: "{{ all_personal_TZ }}"
+docker_pihole_dns_custom_hosts_path: "{{ oci_pihole_host_dir_pihole }}custom_hosts.list"
+docker_pihole_dns_custom_hosts_dnsmasq_conf_path: "{{ oci_pihole_host_dir_dnsmasqd }}99-custom-hosts.conf"
+
 # TODO: abstract this.
 pihole_domain_name: pihole.nivin.tech
 
@@ -31,9 +35,6 @@ docker_pihole_dns_custom_hosts: []
 #    aliases:
 #      - beer
 #      - pizza
-
-docker_pihole_dns_custom_hosts_path: "{{ oci_pihole_host_dir_pihole }}custom_hosts.list"
-docker_pihole_dns_custom_hosts_dnsmasq_conf_path: "{{ oci_pihole_host_dir_dnsmasqd }}99-custom-hosts.conf"
 
 # Used to set what DNS the container will use.
 # This does NOT set the upstream DNS servers for pihole.

@@ -2,12 +2,6 @@
 # ansible-vault decrypt --vault-id general_ansible@~/ansible-general-vault-op-client.sh group_vars/piholeDocker/vault
 # This file includes over-ride variables for the pi-hole docker container
 
-#######  vars for geerlingguy.docker #######
-# most defaults are good and don't need to be overridden
-docker_apt_arch: armhf
-docker_users:
-  - "{{ personal_admin_user }}"
-
 ######## Vars for the pihole docker container ############
 
 # Specifying this option without a value will configure pihole
