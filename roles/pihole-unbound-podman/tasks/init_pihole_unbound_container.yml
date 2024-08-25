@@ -27,11 +27,14 @@
     image: "{{ oci_pihole_image_name }}"
     name: "{{ oci_pihole_container_name }}"
     recreate: true
-    restart_policy: on-failure:3
     # state: quadlet should (ideally) ensure the container is always running under
     # systemd, even after e.g. a power failure / reboot.
     state: quadlet
-    volumes: "{{ oci_container_pihole_volumes }}"
+    # TODO: Note: these volume mounts are related to dnsmasq.
+    # As of this comment, /etc/dnsmaq.d/ (the default value that used to work)
+    # is no longer created on the host, and thus seemingly this does not work anymore.
+    # TODO: look into this more; it might be easily resolved by creating the dir.
+    # volumes: "{{ oci_container_pihole_volumes }}"
     env:
       TZ: "{{ oci_pihole_container_timezone }}"
       WEBPASSWORD: "{{ __pihole_service_admin_password }}"
@@ -67,5 +70,5 @@
     # NOTE: Starting the container on boot should in theory be handled by the
     # existence of the quadlet files.
     daemon_reload: true
-    name: "container-{{ oci_pihole_container_name }}"
+    name: "{{ oci_pihole_container_name }}.service"
     state: started
