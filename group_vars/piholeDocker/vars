@@ -14,7 +14,7 @@ docker_users:
 # to NOT have an admin password on the web interface.
 # This is probably NOT what you want.
 # Setting this value here overrides the value in the role default.
-docker_pihole_admin_password: "{{ vault_docker_pihole_admin_password }}"
+pihole_service_admin_password: "{{ vault_pihole_service_admin_password }}"
 
 oci_pihole_ipv4_address: "{{ vault_oci_pihole_ipv4_address }}"
 

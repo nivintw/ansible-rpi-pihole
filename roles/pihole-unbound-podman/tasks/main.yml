@@ -1,8 +1,8 @@
 ---
-- name: "Set the __docker_pihole_admin_password fact"
+- name: "Set the __pihole_service_admin_password fact"
   ansible.builtin.set_fact:
-    __docker_pihole_random_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
-    __docker_pihole_admin_password: "{{ docker_pihole_admin_password | default(__docker_pihole_random_password) }}"
+    __pihole_service_random_password: "{{ lookup('password', '/dev/null chars=ascii_letters,digits') }}"
+    __pihole_service_admin_password: "{{ pihole_service_admin_password | default(__pihole_service_random_password) }}"
 
 - name: "Install Podman on Debian"
   ansible.builtin.import_tasks: install_podman.yml

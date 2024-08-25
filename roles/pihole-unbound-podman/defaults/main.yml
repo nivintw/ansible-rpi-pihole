@@ -12,7 +12,7 @@ docker_pihole_purge_networks: true
 # Specifying this option without a value will configure pihole
 # to NOT have an admin password on the web interface.
 # This is probably NOT what you want.
-docker_pihole_admin_password:
+pihole_service_admin_password:
 
 oci_pihole_host_dir_dnsmasqd: /etc/dnsmasq.d/
 oci_pihole_host_dir_pihole: /etc/pihole/
