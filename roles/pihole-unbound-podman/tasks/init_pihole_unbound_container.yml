@@ -17,6 +17,20 @@
     force: true # temporary
     name: "{{ oci_pihole_image_name }}"
 
+- name: Ensure pihole service dir oci_pihole_host_dir_dnsmasqd exist on host
+  ansible.builtin.file:
+    path: "{{ oci_pihole_host_dir_dnsmasqd }}"
+    state: directory
+    mode: "0755"
+  become: true
+
+- name: Ensure pihole service dir oci_pihole_host_dir_pihole exist on host
+  ansible.builtin.file:
+    path: "{{ oci_pihole_host_dir_pihole }}"
+    state: directory
+    mode: "0755"
+  become: true
+
 - name: "[OCI / Podman] Setup custom hosts files"
   ansible.builtin.include_tasks: custom_hosts.yml
   when: docker_pihole_dns_custom_hosts | length > 0
@@ -30,11 +44,7 @@
     # state: quadlet should (ideally) ensure the container is always running under
     # systemd, even after e.g. a power failure / reboot.
     state: quadlet
-    # TODO: Note: these volume mounts are related to dnsmasq.
-    # As of this comment, /etc/dnsmaq.d/ (the default value that used to work)
-    # is no longer created on the host, and thus seemingly this does not work anymore.
-    # TODO: look into this more; it might be easily resolved by creating the dir.
-    # volumes: "{{ oci_container_pihole_volumes }}"
+    volumes: "{{ oci_container_pihole_volumes }}"
     env:
       TZ: "{{ oci_pihole_container_timezone }}"
       WEBPASSWORD: "{{ __pihole_service_admin_password }}"

@@ -2,7 +2,7 @@
 - name: Setup custom hosts list
   ansible.builtin.template:
     src: custom_hosts.list.j2
-    dest: "{{ docker_pihole_dns_custom_hosts_path }}"
+    dest: "{{ oci_pihole_host_dns_custom_hosts_path }}"
     owner: root
     group: root
     mode: "0644"
@@ -10,7 +10,7 @@
 - name: Setup dnsmasq configuration file to include custom host list
   ansible.builtin.template:
     src: dnsmasq_custom_hosts.conf.j2
-    dest: "{{ docker_pihole_dns_custom_hosts_dnsmasq_conf_path }}"
+    dest: "{{ oci_pihole_host_dns_custom_hosts_dnsmasq_conf_path }}"
     owner: root
     group: root
     mode: "0644"

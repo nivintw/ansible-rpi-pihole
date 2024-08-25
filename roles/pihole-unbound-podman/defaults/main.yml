@@ -23,8 +23,8 @@ oci_container_pihole_volumes:
   - "{{ oci_pihole_host_dir_pihole }}:/etc/pihole/"
   - "{{ oci_pihole_host_dir_dnsmasqd }}:/etc/dnsmasq.d/"
 
-docker_pihole_dns_custom_hosts_path: "{{ oci_pihole_host_dir_pihole }}custom_hosts.list"
-docker_pihole_dns_custom_hosts_dnsmasq_conf_path: "{{ oci_pihole_host_dir_dnsmasqd }}99-custom-hosts.conf"
+oci_pihole_host_dns_custom_hosts_path: "{{ oci_pihole_host_dir_pihole }}custom_hosts.list"
+oci_pihole_host_dns_custom_hosts_dnsmasq_conf_path: "{{ oci_pihole_host_dir_dnsmasqd }}99-custom-hosts.conf"
 
 # TODO: abstract this.
 pihole_domain_name: pihole.nivin.tech
