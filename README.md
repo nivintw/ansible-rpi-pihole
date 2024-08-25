@@ -1,5 +1,9 @@
 # Best-effort best-practices recursive Pi-hole DNS server running on raspberry pi using Ansible, Docker and unbound
 
+TODO: Update this README.md
+
+TODO: Add a secondary role for installing / configuring my fork of doddns for managing the dynamic dns configuration/updates.
+
 This project aims to:
 
 1. Lower the barrier of entry to configuring and deploying [pihole](https://pi-hole.net/) on a Raspberry Pi running [Raspberry Pi OS](https://www.raspberrypi.org/software/operating-systems/) with widely-accepted security configurations.
