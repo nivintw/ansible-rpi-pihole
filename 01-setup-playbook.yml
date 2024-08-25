@@ -2,7 +2,10 @@
 # ansible-playbook --vault-id general_ansible@~/ansible-general-vault-op-client.sh 01-setup-playbook.yml
 ---
 - name: Configure baseline for Raspberry Pi
-  ansible.builtin.import_playbook: nivintw.raspberry_pi_baseline.configure_cloudpi_base
+  hosts: '{{target|default("all")}}'
+  roles:
+    - role: nivintw.raspberry_pi_baseline.all_pi_config
+  become: true
 
 - name: Harden Raspberry Pi
   ansible.builtin.import_playbook: nivintw.raspberry_pi_baseline.harden_cloudpi

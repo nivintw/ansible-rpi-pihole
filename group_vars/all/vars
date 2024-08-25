@@ -1,10 +1,15 @@
-# There are a number of opportunities to set the timezone when configuring this system.
-# Setting the TZ value here (and referring to it in other places)
-# allows a single source of truth for the desired timezone.
-all_personal_TZ: "America/Chicago"
-all_personal_country: "US"
+# Overriding variable values from nivintw.raspberry_pi_baseline.configure_cloudpi_base
+## which will apply to all hosts configured here
 
-# The hostname for the pi device that will host the software stack.
-all_pihole_host_hostname: "pihole"
+## NOTE: for now, there's only one host and it is a pihole device.
+# The values here for timezone and country are the same as the role variables default values,
+# so these being here  are more for example than anything.
+all_pi_config_host_timezone: "America/Chicago"
+all_pi_config_host_country: "US"
 
-all_ssh_public_key_path: "{{ lookup('env', 'HOME') + '/.ssh/id_rsa.pub' }}"
+## Override the personal admin username and passwords
+# The role default value is undefined, so we must set it here.
+all_pi_config_personal_admin_user: "{{ vault_all_pi_config_personal_admin_user }}"
+all_pi_config_personal_admin_password: "{{ vault_all_pi_config_personal_admin_password }}"
+
+all_pi_config_personal_admin_ssh_public_key_path: "{{ lookup('env', 'HOME') + '/.ssh/id_rsa.pub' }}"
