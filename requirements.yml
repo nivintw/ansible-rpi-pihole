@@ -5,9 +5,6 @@ collections:
   # Install community.general for a number of things.
   - name: community.general
 
-  # Install collection for hardening
-  - name: devsec.hardening
-
   # My own personal collection.
   - name: git@github.com:nivintw/ansible-rpi-nivintw-baseline.git
     version: main
