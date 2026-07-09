@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: © 2024 Tyler Nivin
+# SPDX-License-Identifier: MIT
+
 FROM docker.io/pihole/pihole:latest
 
 RUN apt update && apt install -y unbound vim-tiny

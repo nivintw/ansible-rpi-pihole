@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: © 2024 Tyler Nivin
+# SPDX-License-Identifier: MIT
+
 ---
 - name: "Ensure podman is available"
   ansible.builtin.apt:

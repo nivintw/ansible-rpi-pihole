@@ -1,4 +1,36 @@
+### Direnv ###
+.direnv/
+
+### Dotenv / secrets ###
+.env
+
+### macOS ###
 .DS_Store
-inventory.ini
+.AppleDouble
+.LSOverride
+._*
+
+### Editors ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*~
+
+### superpowers:brainstorming local artifacts (mockups/companions, never committed) ###
+.superpowers/
+
+### MkDocs ###
+site/
+# The social-cards plugin caches generated og:image renders here across builds.
+.cache/
+
+### Ansible ###
+# Local Ansible cache/artifacts and retry files.
+.ansible/
+*.retry
+# Real inventory and vault (secrets / host-specific) — never committed. Copy
+# inventory.yaml.example → inventory.yaml locally.
 inventory.yaml
+inventory.ini
 vault

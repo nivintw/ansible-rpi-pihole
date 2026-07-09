@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: © 2024 Tyler Nivin
+# SPDX-License-Identifier: MIT
+
 # This set of tasks can be used to update the pihole container.
 # The main difference between this and main.yml is this module assumes podman is already installed.
 ---

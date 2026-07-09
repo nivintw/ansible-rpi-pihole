@@ -1,3 +1,8 @@
+<!--
+SPDX-FileCopyrightText: © 2024 Tyler Nivin
+SPDX-License-Identifier: MIT
+-->
+
 # Best-effort best-practices recursive Pi-hole DNS server running on raspberry pi using Ansible, Docker and unbound
 
 TODO: Update this README.md
@@ -6,15 +11,15 @@ TODO: Add a secondary role for installing / configuring my fork of doddns for ma
 
 This project aims to:
 
-1. Lower the barrier of entry to configuring and deploying [pihole](https://pi-hole.net/) on a Raspberry Pi running [Ubunutu 24.04 Server LTS](https://ubuntu.com/download/server) with widely-accepted security configurations.
+1. Lower the barrier of entry to configuring and deploying [pihole](https://pi-hole.net/) on a Raspberry Pi running [Ubuntu 24.04 Server LTS](https://ubuntu.com/download/server) with widely-accepted security configurations.
 1. Do so while also incorporating current (2024) best-practices for managing and deploying software stacks.
 
 In case you have a background in this area and want to see the tech stack here it is:
 
 1. [Ansible Community](https://docs.ansible.com/ansible/latest/community/index.html), including ansible-vault for secrets
 1. OCI container management via [Podman](https://podman.io/)
-1. OS and SSH Hardening via https://github.com/dev-sec/ansible-collection-hardening
-1. [Ubunutu 24.04 Server LTS](https://ubuntu.com/download/server)
+1. OS and SSH Hardening via <https://github.com/dev-sec/ansible-collection-hardening>
+1. [Ubuntu 24.04 Server LTS](https://ubuntu.com/download/server)
 1. Public Key Infrastructure
 1. [Pi-hole ad blocking](https://pi-hole.net/) via the [Pihole OCI container](https://hub.docker.com/r/pihole/pihole)
 1. [Unbound recursive DNS](https://docs.pi-hole.net/guides/dns/unbound/)
@@ -47,7 +52,7 @@ Doing all of this configuration manually (like I was before working on this proj
 
 That being said, there are a few steps that need to happen outside of ansible first.
 
-1. Install [Ubunutu 24.04 Server LTS](https://ubuntu.com/download/server) onto an SD card.
+1. Install [Ubuntu 24.04 Server LTS](https://ubuntu.com/download/server) onto an SD card.
    - The recommended approach is to use [Raspberry Pi Imager](https://www.raspberrypi.com/software/) to install and configure Ubuntu.
    - Enable SSH and configure a personal admin user during installation.
    - I recommend adding a relevant public key for your personal admin user during installation/ssh configuration before the first boot, but this is not technically required.
@@ -71,16 +76,16 @@ This project ended up being more of a lift than I expected at first, but would n
 
 Inspired by the ansible role found here in addition to the original forked repo:
 
-https://github.com/TWinsnes/galaxy-role-pihole/blob/master/tasks/main.yml
+<https://github.com/TWinsnes/galaxy-role-pihole/blob/master/tasks/main.yml>
 
 Also:
-https://github.com/geerlingguy/ansible-role-docker
+<https://github.com/geerlingguy/ansible-role-docker>
 
 Also:
-https://github.com/emielmolenaar/ansible-role-docker-pihole
+<https://github.com/emielmolenaar/ansible-role-docker-pihole>
 
 Also:
-https://github.com/dev-sec/ansible-collection-hardening
+<https://github.com/dev-sec/ansible-collection-hardening>
 
 I don't know how much actually remains of the original fork, but I wanted to try to give credit everywhere it is due. If you find references or code that looks like another project it almost certainly was at least inspired by it. Omission of a reference is strictly accidental and I will happily add anyone i've forgotten.
 
@@ -94,7 +99,7 @@ This section includes instructions to install Ansible on your local machine if y
 Using pipx to manage python-based command line utilities (like ansible!) is highly recommended.
 In short, it allows you to install and run python applications in isolated environments. See [the pipx official site](https://pipx.pypa.io/stable/) for more information.
 
-Full instructions for installing ansible with pipx can be found on the ansibile documentation site [here](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-and-upgrading-ansible-with-pipx).
+Full instructions for installing Ansible with pipx are in the [Ansible installation guide (pipx)](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-and-upgrading-ansible-with-pipx).
 
 Alternatively, use the below to just install the full Ansible package if you want to skip the external docs.
 
@@ -104,7 +109,7 @@ pipx install --include-deps ansible
 
 ### Other Install Options
 
-For alternative install options for ansible, see the official documentation available [here](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html).
+For alternative install options for Ansible, see the [official Ansible installation guide](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html).
 Alternative options include using pip, OCI containers, and development install options.
 For most people, the `pipx` based installation will be what you want.
 
@@ -112,7 +117,7 @@ For most people, the `pipx` based installation will be what you want.
 
 On your local computer, clone and setup this ansible playbook.
 
-```
+```text
 git clone https://github.com/nivintw/ansible-rpi-pihole
 cd ansible-rpi-pihole
 cp inventory.yaml.example inventory.yaml
@@ -123,7 +128,7 @@ command line).
 
 Deploy using [ansible](http://www.ansible.com).
 
-### WARNING: The instructions below this point have not been updated.
+### WARNING: The instructions below this point have not been updated
 
 The playbooks and code _do_ work, but these instructions may not.
 I plan on updating the readme soon, but please proceed with caution.
@@ -131,12 +136,12 @@ If you are familiar with Ansible and the other tools, I hope the code base is re
 If you are not familiar with ansible, maybe wait until I get a chance to update these instructions.
 There are some variables that you'll want to override for your setup, as well as leveraging ansible-vault and the need to create a vault file.
 
-```
+```text
 ./playbook.yml
 ```
 
 Or:
 
-```
+```text
 ansible-playbook playbook.yml -i hosts --ask-pass --become -c paramiko
 ```

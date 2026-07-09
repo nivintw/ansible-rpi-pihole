@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: © 2024 Tyler Nivin
+# SPDX-License-Identifier: MIT
+
 ---
 - name: "[OCI / Podman] Restart pihole container"
   containers.podman.podman_container:

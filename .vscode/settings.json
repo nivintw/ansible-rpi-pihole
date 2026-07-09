@@ -1,4 +1,17 @@
 {
-    "python.pythonPath": "/Users/tylernivin/miniconda3/bin/python",
-    "ansible.python.interpreterPath": "/Users/tylernivin/miniconda3/bin/python"
+  // VS Code workspace settings. Layers VS Code-specific behavior on top of .editorconfig,
+  // which owns indent / whitespace / final-newline hygiene — those rules live there (and the
+  // recommended editorconfig extension feeds them into VS Code), not duplicated here.
+  // Comments are intentional — this file is JSONC, excluded from the check-json hook.
+  "editor.formatOnSave": true,
+  // Don't prompt for a gitmoji; commit tooling handles commit messages.
+  "conventionalCommits.gitmoji": false,
+  // Ansible: associate playbook/role/molecule YAML with the Ansible language so the
+  // redhat.ansible extension (and its ansible-lint integration) activates on them.
+  "files.associations": {
+    "**/playbooks/*.yml": "ansible",
+    "**/molecule/*/*.yml": "ansible",
+    "**/tasks/*.yml": "ansible",
+    "**/handlers/*.yml": "ansible"
+  },
 }

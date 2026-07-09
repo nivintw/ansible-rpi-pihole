@@ -1,14 +1,20 @@
-# ansible-galaxy install -r requirements.yml to install the requirements on the ansible controller.
+# SPDX-FileCopyrightText: © 2024 Tyler Nivin
+# SPDX-License-Identifier: MIT
 
 ---
+# Galaxy content this project depends on, installed by `ansible-galaxy install -r requirements.yml`
+# (into Ansible's default path, where ansible-lint resolves it). `ansible.builtin.*` is always
+# available and needs no entry here.
 collections:
-  # Install community.general for a number of things.
+  # General-purpose modules/filters used across the plays.
   - name: community.general
 
-  # My own personal collection.
+  # Personal baseline collection (hosts the shared role config this project builds on).
   - name: git@github.com:nivintw/ansible-rpi-nivintw-baseline.git
     version: main
     type: git
 
-  # For creating images / containers using podman
+  # Podman container/image management.
   - name: containers.podman
+
+roles: []
