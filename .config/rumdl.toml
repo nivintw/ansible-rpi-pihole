@@ -1,0 +1,38 @@
+# SPDX-FileCopyrightText: © 2024 Tyler Nivin
+# SPDX-License-Identifier: MIT
+
+# rumdl (markdown lint/format) config. See https://github.com/rvben/rumdl.
+
+[global]
+# Don't enforce a hard line length on prose.
+# MD033 (no inline HTML) is off too: the MkDocs docs-site design deliberately relies on raw
+# HTML passing through Markdown unmodified — castify's <figure class="cast"> embeds and a
+# per-plugin <span data-version="..."> version-badge convention both need it.
+disable = ["MD013", "MD033"]
+# release-please owns CHANGELOG.md and regenerates it with multiple consecutive blank
+# lines (MD012) on every release PR; exclude generated changelogs from the prose linter.
+exclude = ["LICENSE", "LICENSES/**", "**/CHANGELOG.md"]
+
+[MD046]
+# Always use fenced code blocks (```lang), never 4-space-indented.
+style = "fenced"
+
+[per-file-ignores]
+# MD033 (no inline HTML): castify's <figure class="cast"> embeds and similar raw-HTML
+# docs-site conventions need this even though MD033 is already off globally above — this
+# scopes it to just the docs tree if the global disable is ever narrowed later.
+# MD046 (fenced over indented): pymdownx.tabbed's content nesting under `=== "tab"`
+# requires 4-space indentation, the same convention as a list continuation — rumdl's
+# parser mistakes that indentation ahead of an already-fenced block for a raw indented
+# code block, then "fixes" it by wrapping the tab's prose in stray fences too, destroying
+# the tab structure (see nivintw/copier-everything#178).
+# `**` (not just `docs/*.md`) so this reaches a nested reference page (e.g.
+# docs/config/*.md) too — verified against the pinned rumdl version (v0.2.17): `*` alone
+# already crosses `/` in its glob engine (so `docs/*.md` was never actually broken for
+# nested files), but `**` is the version that stays correct if a future rumdl release
+# tightens that matching to the more common glob convention.
+"docs/**/*.md" = ["MD033", "MD046"]
+# MD041 (first line must be a level-1 heading): a pymdownx.snippets fragment isn't a
+# standalone page — it's spliced into whatever page includes it via `--8<--`, so forcing
+# an H1 here would inject a duplicate/wrong-level heading wherever it's included.
+"docs/includes/*.md" = ["MD041"]

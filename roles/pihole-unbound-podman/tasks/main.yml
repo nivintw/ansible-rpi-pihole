@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: © 2024 Tyler Nivin
+# SPDX-License-Identifier: MIT
+
 ---
 - name: "Set the __pihole_service_admin_password fact"
   ansible.builtin.set_fact:

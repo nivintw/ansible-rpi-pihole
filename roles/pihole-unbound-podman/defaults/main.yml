@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: © 2024 Tyler Nivin
+# SPDX-License-Identifier: MIT
+
 ---
 oci_pihole_container_name: pihole
 oci_pihole_image_name: pihole-image

@@ -1,0 +1,48 @@
+# SPDX-FileCopyrightText: © 2024 Tyler Nivin
+# SPDX-License-Identifier: MIT
+
+# Dead-link check for the Markdown docs (lychee). Kept OUT of the reusable ci.yml gate on
+# purpose: link checking is a network operation (flaky, depends on third-party uptime),
+# whereas ci.yml is the deterministic, offline-reproducible gate. Run it as its own check so
+# branch protection can require `ci` without making a flaky external link block every merge.
+
+name: link-check
+
+on:
+  pull_request:
+    # lychee only crawls Markdown, so a PR touching no docs gains nothing from running it —
+    # and re-crawling every PR needlessly exposes them to third-party-uptime flakiness.
+    # `**/*.md` covers any subdirectory depth; `*.md` covers root-level files — together
+    # they match every Markdown file regardless of how the filter engine treats `**`.
+    paths: ['**/*.md', '*.md']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: link-check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lychee:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Check links (lychee)
+        uses: lycheeverse/lychee-action@8646ba30535128ac92d33dfc9133794bfdd9b411 # v2.8.0
+        with:
+          # --max-retries/--timeout keep a slow-but-valid host (a single transient TIMEOUT)
+          # from reddening the check. Excludes — this repo's own /compare/ URLs, the REUSE badge
+          # /info/ endpoint, plus any a consuming repo adds — live in .config/lychee.toml and are
+          # passed via --config; keeping ALL excludes in one source avoids lychee's CLI-vs-config
+          # merge ambiguity. (lychee excludes mailto: by default.) Scope to Markdown so
+          # LICENSES/lockfiles aren't crawled.
+          args: "--no-progress --max-retries 5 --timeout 30 --config .config/lychee.toml '**/*.md'"
+          fail: true
+        env:
+          # Authenticated requests raise GitHub's rate limit, so github.com links don't flake.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

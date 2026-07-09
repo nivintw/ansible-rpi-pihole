@@ -1,0 +1,268 @@
+# SPDX-FileCopyrightText: © 2024 Tyler Nivin
+# SPDX-License-Identifier: MIT
+
+# Main pipeline: on every push to main, run the SAME quality gate as PRs, then — only
+# here — release-please (gated by `needs: ci`).
+#
+# RELEASE FLOW (release-please, manifest mode, separate-pull-requests: true — N-package
+# generic; this template scaffolds a single package "." by default, the N=1 case of the
+# same mechanism):
+#   1. On push to main, release-please scans Conventional Commits since the last release
+#      and maintains one Release PR per package that bumps that package's version
+#      (.config/.release-please-manifest.json, mirrored into the version-of-record via
+#      .config/release-please-config.json's extra-files) + CHANGELOG.md.
+#   2. Every open Release PR is auto-merged (`--auto --rebase`) once its required checks
+#      pass, so releases are continuous; release-please then cuts each package's `vX.Y.Z`
+#      tag + GitHub Release.
+#   3. The action authenticates as the release GitHub App (see below). An App token is a
+#      distinct actor, so — unlike the default GITHUB_TOKEN — the Release PR runs CI and
+#      merging it triggers downstream workflows.
+#
+# REPO SETUP TO ENABLE RELEASES (the release job SKIPS cleanly until these exist, so
+# merging to main is always safe — see the `preflight` job below):
+#   - A release GitHub App with Contents: Read+write AND Pull requests: Read+write,
+#     installed on this repo, and in the bypass list of any ruleset that protects main.
+#   - A repository variable CI_CLIENT_ID (the App's Client ID — non-secret) and a
+#     repository secret CI_APP_PRIVATE_KEY (the App's private key).
+#   - "Allow auto-merge" + "Allow rebase merging" enabled, and the ruleset gating main on
+#     REQUIRED STATUS CHECKS (`--auto` needs >=1 required check; a required approving review
+#     works only with approve-bot-prs.yml configured — the App can't approve its own Release
+#     PR). The auto-merge step uses `--rebase`.
+#   - If you don't want app releases, pass a PAT as `token` instead, or delete this job.
+
+name: main
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Serialize release runs so overlapping merges can't race release-please.
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+    # release-please's bump commit was already validated as the Release PR, so skip the heavy
+    # gate when it lands on main — the ci job still succeeds, so `needs: ci` and the release
+    # job are unaffected. Scope to `push` (head_commit is absent on workflow_dispatch, which
+    # then runs the full gate) and anchor on release-please's exact bump-commit prefix
+    # (`chore(main): release ` — scope + colon-space, so the value must be quoted) so an
+    # innocent human commit like `chore: release notes cleanup` doesn't skip the gate.
+    with:
+      skip-quality-gate: "${{ github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore(main): release ') }}"
+
+  # Guard: the release job needs the App's Client ID + private key. A secret can't be read
+  # in a job-level `if:`, so a step (which CAN see them) reports whether BOTH are present,
+  # and the release job gates on that output. Until both are set, release SKIPS cleanly
+  # (green run, no failure); set them and auto-release activates itself.
+  preflight:
+    runs-on: ubuntu-latest
+    outputs:
+      release_enabled: ${{ steps.check.outputs.enabled }}
+    steps:
+      - id: check
+        env:
+          CI_CLIENT_ID: ${{ vars.CI_CLIENT_ID }}
+          CI_APP_PRIVATE_KEY: ${{ secrets.CI_APP_PRIVATE_KEY }}
+        run: |
+          missing=""
+          [ -z "$CI_CLIENT_ID" ] && missing="$missing CI_CLIENT_ID(variable)"
+          [ -z "$CI_APP_PRIVATE_KEY" ] && missing="$missing CI_APP_PRIVATE_KEY(secret)"
+          if [ -z "$missing" ]; then
+            echo "enabled=true" >>"$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >>"$GITHUB_OUTPUT"
+            echo "::notice::Release skipped — missing:$missing. Set them to enable auto-release."
+          fi
+
+  release:
+    needs: [ci, preflight]
+    if: needs.preflight.outputs.release_enabled == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mint a token for the release App (the ruleset bypass actor)
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          # `app-id` accepts the App's Client ID as well as the numeric App ID
+          # (create-github-app-token supports both); the Client ID is non-secret, hence a var.
+          app-id: ${{ vars.CI_CLIENT_ID }}
+          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+          # Scope the token to exactly what release-please needs: the bump commit + tag +
+          # release (contents) and the Release PR (pull-requests).
+          permission-contents: write
+          permission-pull-requests: write
+
+      - name: Run release-please (Release PRs, tags, releases)
+        id: release
+        uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4.4.1
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          config-file: .config/release-please-config.json
+          manifest-file: .config/.release-please-manifest.json
+
+      # Continuous release: enable auto-merge on EVERY open Release PR, so each lands
+      # (rebase) once required checks pass. Because separate-pull-requests is on,
+      # release-please emits `prs` (a JSON array of every Release PR touched this run) —
+      # iterating it is what makes this generic across however many packages the config
+      # declares, from this template's default of one up to however many a consumer adds
+      # by hand. On the next run (a release was cut, no PR) `prs` is unset and this skips.
+      # PR JSON travels via env, never inline `${{ }}`, to dodge script injection. GH_REPO
+      # tells gh which repo to act on: this job has no checkout, so without it `gh pr merge`
+      # probes the working dir for a git remote and dies ("not a git repository"). gh reads
+      # GH_REPO natively, so no `actions/checkout` is needed.
+      # Tolerate ONLY the documented setup gap — a repo that hasn't turned on "Allow
+      # auto-merge" — by detecting it up front (the repo's allow_auto_merge flag) and warning
+      # cleanly. Every OTHER failure (gh API 5xx, auth, a missing required check on main)
+      # then reddens the job under `set -euo pipefail`, so a stalled release is loud instead
+      # of hiding as a ::warning:: on an otherwise-green run.
+      # `!= '[]'` is defensive belt-and-suspenders, not load-bearing today: verified against
+      # release-please-action v4.4.1's source that `prs` is only ever set (never to `"[]"`)
+      # when at least one PR exists — but the action isn't pinned by version, just by commit
+      # SHA that Renovate bumps, so this guards against a future release changing that.
+      - name: Auto-merge the Release PRs
+        if: ${{ steps.release.outputs.prs && steps.release.outputs.prs != '[]' }}
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_PRS: ${{ steps.release.outputs.prs }}
+        run: |
+          set -euo pipefail
+          # Capture jq's output first (not `jq | while`): under `set -e` a jq failure (null /
+          # non-array `prs`) aborts the step loudly instead of being swallowed by the pipe and
+          # silently enabling auto-merge on nothing. Computed before the auto_merge_allowed
+          # check too, so a disabled-auto-merge warning can name the exact PR(s) to merge
+          # manually instead of pointing at a discovery step.
+          numbers="$(printf '%s' "$RELEASE_PRS" | jq -r '.[].number')"
+          # Read the setting in its own statement so a gh API failure here (5xx/auth) trips
+          # set -e and reddens the job, rather than the empty result masquerading as "off".
+          auto_merge_allowed="$(gh api "repos/${GH_REPO}" --jq '.allow_auto_merge')"
+          if [ "$auto_merge_allowed" != "true" ]; then
+            # `paste -d` treats a multi-char delimiter as a cycling set of characters, not a
+            # literal string, so it'd alternate ',' and ' ' across 3+ items — join on a single
+            # char first, then widen it to ", ".
+            pr_list="$(echo "$numbers" | sed 's/^/#/' | paste -sd, - | sed 's/,/, /g')"
+            echo "::warning::Auto-merge is off for ${GH_REPO}, so Release PR(s) ${pr_list} were left open (merge manually once ready). Enable 'Allow auto-merge' + 'Allow rebase merging' and require a status check on main to automate this."
+            exit 0
+          fi
+          for num in $numbers; do
+            gh pr merge "$num" --auto --rebase
+          done
+
+      # This template's own release-please-config.json.jinja always scaffolds a single
+      # package by default, so this never fires against a freshly-generated repo as-is —
+      # it guards the moment a consumer extends that config to 2+ packages by hand
+      # (release-please supports it, separate-pull-requests is already on above, and the
+      # config is a plain file a consumer can and does edit), which is exactly the
+      # real-world incident that motivated this fix. Once that happens: each
+      # package's Release PR bumps its own line in the SHARED manifest, so the first to
+      # auto-merge above changes main and every other Release PR's branch now textually
+      # conflicts with main on that shared file (mergeStateStatus DIRTY) and can never
+      # auto-merge. release-please doesn't refresh a stale branch whose generated content is
+      # unchanged — it compares the changes it wants, not branch mergeability — so a DIRTY
+      # Release PR never self-heals on its own. Close it instead: closing is release-please's
+      # documented regeneration path, so the next run that reaches this component recreates
+      # its Release PR from a fresh main (conflict-free), and the auto-merge step above
+      # re-arms it. Identified via the same CI_APP_SLUG trust anchor as approve-bot-prs.yml
+      # (author login == <slug>[bot]) plus release-please's own `autorelease: pending` label
+      # — both more stable than the tool's undocumented branch-naming — and fails closed
+      # (no-op) if the variable isn't set, same as that workflow. The label check is literal
+      # equality against DIRTY (not "!= CLEAN"): mergeStateStatus is transiently UNKNOWN right
+      # after a push, so a just-orphaned PR simply isn't caught this run and converges on a
+      # later one instead of being misclassified. This filter only narrows the CANDIDATE set
+      # to close, though — a maintainer's manual fixup commit pushed onto the bot's branch
+      # doesn't change the PR's (immutable) author field, so the step itself re-checks each
+      # candidate's actual commits before closing (see below) rather than trusting this alone.
+      - name: Close any stranded (DIRTY) Release PRs so release-please regenerates them
+        if: vars.CI_APP_SLUG != ''
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          GH_REPO: ${{ github.repository }}
+          CI_APP_SLUG: ${{ vars.CI_APP_SLUG }}
+        run: |
+          set -euo pipefail
+          # Two-phase on purpose. Phase 1 lists open PRs on CHEAP fields only and must NOT
+          # request `commits`: `gh pr list --json ...,commits` makes GitHub's GraphQL cost
+          # estimator score the nested commits→authors connection across the whole requested
+          # page (roughly limit × 100 commits × authors) and REJECT the query before it runs
+          # once the page size passes ~50 ("requesting up to N possible nodes ... exceeds the
+          # maximum limit of 500,000"). It fails on the query SHAPE, independent of how many PRs
+          # or commits actually exist — so requesting commits here reddened this step on
+          # essentially every run once CI_APP_SLUG was set. `commits` is fetched per stranded
+          # candidate in phase 2 instead (a repo normally has 0-1 stranded Release PRs open at
+          # once, so that's a couple of extra calls, not one per open PR).
+          # Plain assignment (not `mapfile < <(...)`, a process substitution whose exit status
+          # `set -e` can't see) so a `gh pr list` failure (auth, API 5xx) aborts the step loudly
+          # instead of silently reading as "none found". --limit raised well past gh's 30-item
+          # default so a busier repo's stranded PR can't fall off the first page.
+          prs_json="$(gh pr list --state open --limit 100 \
+            --json number,author,labels,mergeStateStatus)"
+          # Narrow to the stranded candidates on those cheap fields: authored by the release
+          # bot, labeled `autorelease: pending`, and DIRTY. Literal equality against DIRTY (not
+          # "!= CLEAN"): mergeStateStatus is transiently UNKNOWN right after a push, so a
+          # just-orphaned PR simply isn't caught this run and converges on a later one rather
+          # than being misclassified. Plain assignment again so a jq failure trips `set -e`.
+          candidates="$(printf '%s' "$prs_json" | jq -r --arg app "${CI_APP_SLUG}[bot]" \
+            '.[] | select(.author.login == $app and (.labels[]?.name == "autorelease: pending") and .mergeStateStatus == "DIRTY") | .number')"
+          if [ -z "$candidates" ]; then
+            echo "No stranded Release PRs found."
+            exit 0
+          fi
+          mapfile -t nums <<<"$candidates"
+          for num in "${nums[@]}"; do
+            [ -n "$num" ] || continue
+            # Phase 2: fetch THIS candidate's commits (the split's cost, bought back cheaply).
+            # Its own statement so a `gh pr view` failure trips `set -e` instead of reading as
+            # "no commits".
+            commits_json="$(gh pr view "$num" --json commits)"
+            # Never auto-close a stranded PR carrying a human's manual commit: closing it under
+            # the "release-please will regenerate this PR" message would silently discard those
+            # commits, not just an auto-generated bump. Checked from the branch's actual commits
+            # (which can gain new commits over time) rather than trusting the PR-level `author`
+            # field (fixed once the PR opens, so it can't reflect who pushed a later fixup
+            # commit — it stays the release bot's login either way).
+            # Fail SAFE (leave open) on any degraded shape this check can't verify, resolving it
+            # to a non-empty "unknown-authors" marker rather than an empty string:
+            #   - a null/absent `.commits` (whole response degraded), and
+            #   - a commit whose `.authors` is empty/null/absent (per-commit degraded) — without
+            #     this, that commit's authors iterate to nothing, the list collapses to "", and
+            #     the [ -n ] check below reads "" as "verified bot-only" and auto-closes the PR,
+            #     discarding a human's commit (the opposite of this guard's fail-safe direction).
+            # A naive `.commits[]?`/`.authors[]?` would silently swallow both into "verified
+            # bot-only" instead. A commit author with no linked GitHub account comes back with a
+            # null OR empty-string `.login` AND/OR `.email`; jq's `//` treats "" as truthy, so
+            # guard both null and "" on EACH field before falling through, or a `login: null,
+            # email: ""` human commit would collapse to "" and be misread as bot-only.
+            non_bot_logins="$(printf '%s' "$commits_json" | jq -r --arg app "${CI_APP_SLUG}[bot]" \
+              'if .commits == null then "unknown-authors (commits field missing from API response)" elif any(.commits[]; (.authors // []) | length == 0) then "unknown-authors (a commit is missing author data)" else ([.commits[].authors[]? | select(.login != $app) | ((.login | select(. != null and . != "")) // (.email | select(. != null and . != "")) // .name // "unknown-author")] | unique | join(", ")) end')"
+            if [ -n "$non_bot_logins" ]; then
+              # Strip CR/LF from the (attacker-influenceable) author string before echoing it
+              # into a ::warning:: — a forged commit author name containing a newline could
+              # otherwise inject spurious GitHub Actions workflow-command annotations (log spoof).
+              non_bot_logins="${non_bot_logins//[$'\r\n']/ }"
+              echo "::warning::Release PR #${num} is DIRTY but carries a commit from ${non_bot_logins} (not just ${CI_APP_SLUG}[bot]) — leaving it open rather than auto-closing, since that would discard those commits. Resolve the conflict manually."
+              continue
+            fi
+            echo "Closing stranded Release PR #${num} (DIRTY against current main)."
+            # Tolerate ONLY the expected race (someone/something else already closed or
+            # merged it between the list above and this close) so one benign race doesn't
+            # abort the rest of the batch; every other failure still reddens the job.
+            if ! gh pr close "$num" --comment "Closing — this Release PR's manifest edit now conflicts with main after another same-cycle Release PR merged first. release-please will regenerate this PR from a fresh main next time it runs for this component."; then
+              if ! state="$(gh pr view "$num" --json state --jq '.state')"; then
+                echo "::error::Could not verify state of PR #${num} after the close attempt above failed." >&2
+                exit 1
+              fi
+              if [ "$state" = "CLOSED" ] || [ "$state" = "MERGED" ]; then
+                echo "::notice::PR #${num} was already $(printf '%s' "$state" | tr '[:upper:]' '[:lower:]') before this step could close it — skipping."
+                continue
+              fi
+              echo "::error::Failed to close stranded Release PR #${num} for an unexpected reason." >&2
+              exit 1
+            fi
+          done

@@ -1,0 +1,40 @@
+# SPDX-FileCopyrightText: © 2024 Tyler Nivin
+# SPDX-License-Identifier: MIT
+
+# Thin caller: the actual MkDocs build-and-deploy logic lives in ONE place —
+# nivintw/repo-management's reusable workflow — so a `mkdocs`/`mkdocs-material` version
+# bump is one Renovate PR for the whole fleet, not one per repo. `pages: write` +
+# `id-token: write` are declared here (not inside the reusable workflow) because GitHub
+# requires the CALLING workflow to grant the permissions a reusable workflow's jobs use.
+#
+# Pinned to a commit (zizmor's blanket unpinned-uses policy), not a tag — repo-management
+# has no release process for this workflow, so Renovate tracks and bumps the digest instead,
+# same as it does for every other `uses:` pin in this file (see main.yml/docs on Renovate's
+# GitHub Actions digest-pinning).
+name: docs
+
+on:
+  push:
+    branches: [main]
+    # overrides/** is the theme-customization dir this same include_docs_site feature
+    # scaffolds (overrides/404.html) — a change there alone (the 404 page, or any future
+    # theme override) must trigger a redeploy too, or the live site silently goes stale.
+    paths: ['docs/**', 'mkdocs.yml', 'overrides/**']
+  workflow_dispatch:
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: nivintw/repo-management/.github/workflows/docs.yml@e1949b798ee87018f16e1a41253ff36cf34f3b98 # main
+    with:
+      # mkdocs.yml enables the git-revision-date-localized and llmstxt plugins
+      # (nivintw/repo-management#94, #97) — neither ships with mkdocs-material, so both
+      # need to be installed alongside it at build time.
+      extra-packages: mkdocs-git-revision-date-localized-plugin mkdocs-llmstxt

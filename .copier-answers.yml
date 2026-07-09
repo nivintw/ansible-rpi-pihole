@@ -1,0 +1,29 @@
+# SPDX-FileCopyrightText: © 2024 Tyler Nivin
+# SPDX-License-Identifier: MIT
+
+# Changes here will be overwritten by Copier; NEVER EDIT MANUALLY.
+_commit: v1.12.0
+_src_path: gh:nivintw/copier-everything
+ansible_kind: playbooks
+author_email: tyler.nivin@gmail.com
+author_name: Tyler Nivin
+contains_ansible: true
+contains_python: false
+include_devcontainer: false
+include_docker: false
+include_docs_site: true
+include_helm: false
+include_sql: false
+include_terraform: false
+initialize_repository: false
+license: MIT
+markdown_has_frontmatter: false
+project_description: Deploy a recursive Pi-hole DNS server (Pi-hole + unbound via
+    Podman) to a Raspberry Pi with Ansible.
+project_name: Ansible RPi Pi-hole
+project_slug: ansible-rpi-pihole
+release_model: single
+repo_name: ansible-rpi-pihole
+repo_owner: nivintw
+test_frameworks: []
+year: 2024

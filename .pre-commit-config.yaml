@@ -1,0 +1,205 @@
+# SPDX-FileCopyrightText: © 2024 Tyler Nivin
+# SPDX-License-Identifier: MIT
+
+# Pre-commit hooks, run by prek (https://github.com/j178/prek). Designed to run
+# identically in CI — most hooks self-bootstrap a pinned env.
+#   Run on demand:  uvx prek@0.4.8 run --all-files
+#   Install hooks:  uvx prek@0.4.8 install
+
+default_install_hook_types: [pre-commit, commit-msg]
+default_stages: [pre-commit, manual]
+
+repos:
+  # ------------------------------ 🔧 Meta / Self-checks ----------------------------- #
+  - repo: meta
+    hooks:
+      # NOTE: check-hooks-apply is intentionally omitted. A freshly-scaffolded repo can
+      # legitimately have hygiene hooks (check-json, etc.) that match zero files until
+      # the project grows, and that meta-hook would fail the gate on those.
+      - id: check-useless-excludes
+        name: "🔧 pre-commit · Check for useless excludes"
+
+  # ------------------------------- 🌳 Git Hygiene ----------------------------------- #
+  - repo: builtin
+    hooks:
+      - id: check-added-large-files
+        name: "🌳 git · Block large file commits"
+        args: ["--maxkb=1024"]
+      - id: check-merge-conflict
+        name: "🌳 git · Detect conflict markers"
+      - id: no-commit-to-branch
+        name: "🌳 git · Protect main (commit via a branch, then merge)"
+      - id: check-case-conflict
+        name: "🌳 git · Detect case-insensitive name clashes"
+      - id: check-shebang-scripts-are-executable
+        name: "🌳 git · Shebang scripts must be executable"
+      - id: check-executables-have-shebangs
+        name: "🌳 git · Executables must have a shebang"
+      - id: detect-private-key
+        name: "🔒 security · Block committed private keys"
+      - id: mixed-line-ending
+        name: "🧹 cleanup · Normalize line endings (LF)"
+        args: ["--fix=lf"]
+      - id: trailing-whitespace
+        name: "🧹 cleanup · Remove trailing whitespace"
+        args: ["--markdown-linebreak-ext=md"]
+      - id: end-of-file-fixer
+        name: "🧹 cleanup · Ensure single newline at EOF"
+      - id: check-yaml
+        name: "🗂️ config · Validate YAML"
+      - id: check-json
+        name: "🗂️ config · Validate JSON"
+        files: '\.json$'
+        # VS Code's .vscode/*.json are JSONC (comments + trailing commas) — valid for VS Code
+        # but not strict JSON, so check-json can't parse them. Match .vscode/ at any depth.
+        exclude: '(^|/)\.vscode/'
+      - id: check-toml
+        name: "🗂️ config · Validate TOML"
+
+  # -------------------------------- 🐚 Shell ---------------------------------------- #
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+      - id: shellcheck
+        name: "🐚 shell · Lint shell scripts with shellcheck"
+        args: ["-s", "bash", "-x"]
+
+  - repo: https://github.com/maxwinterstein/shfmt-py
+    rev: v4.0.0
+    hooks:
+      - id: shfmt
+        name: "🐚 shell · Format shell scripts with shfmt"
+        # -i 2 matches .editorconfig (indent_size = 2).
+        args: ["-w", "-i", "2"]
+
+  # ----------------------------- ⚙️ GitHub Actions ---------------------------------- #
+  # actionlint lints the workflows (and shellchecks their `run:` blocks); zizmor security-
+  # audits them. Both are pip-backed hooks that self-bootstrap a pinned env — no system
+  # binary, so they run identically locally and in CI.
+  - repo: https://github.com/Mateusz-Grzelinski/actionlint-py
+    rev: v1.7.12.24
+    hooks:
+      - id: actionlint
+        name: "⚙️ ci · Lint workflows with actionlint"
+        # shellcheck-py puts a shellcheck on PATH so actionlint can lint `run:` blocks
+        # without depending on a system install.
+        additional_dependencies: ["shellcheck-py"]
+
+  - repo: https://github.com/woodruffw/zizmor-pre-commit
+    rev: v1.26.1
+    hooks:
+      - id: zizmor
+        name: "🔒 ci · Audit workflows for security issues (zizmor)"
+        # --offline keeps THIS hook deterministic and token-free: the AST audits (template
+        # injection, excessive permissions, artipacked, …) run offline everywhere. The
+        # network audits (known-vulnerable-actions, ref-confusion) need a GH token, so they
+        # don't run in this hook — CI runs the FULL zizmor audit (online) as a dedicated
+        # step that SKIPs this hook (see ci.yml). Overriding args drops the upstream
+        # default, so re-add --no-progress.
+        args: ["--no-progress", "--offline"]
+
+  # ------------------------------- 🔒 Security -------------------------------------- #
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.30.1
+    hooks:
+      - id: gitleaks
+        name: "🔒 security · Detect secrets with gitleaks"
+
+  # --------------------------- ⚖️ Licensing & Compliance ---------------------------- #
+  # hawkeye maintains the SPDX headers (config: .config/licenserc.toml); reuse verifies overall
+  # REUSE compliance. hawkeye is a system release binary (like taplo/osv-scanner/trivy).
+  # SYSTEM TOOLS: this template emits NO Brewfile — CI installs these binaries per run, but
+  # install them locally too so `prek run --all-files` matches CI (the README "Quality gate"
+  # section lists them). The canonical nivintw setup provides them via the Brewfile in the
+  # https://github.com/nivintw/dotfiles repo; a generic adopter supplies their own equivalent.
+  - repo: local
+    hooks:
+      - id: hawkeye-format
+        name: "⚖️ license · Add/format SPDX headers with hawkeye"
+        entry: hawkeye format --config .config/licenserc.toml
+        language: system
+        pass_filenames: false
+        require_serial: true
+
+  - repo: https://github.com/fsfe/reuse-tool
+    rev: v6.2.0
+    hooks:
+      - id: reuse
+        name: "⚖️ license · Check REUSE compliance"
+
+  # ------------------------------- ✨ Spelling -------------------------------------- #
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.47.2
+    hooks:
+      - id: typos
+        name: "✨ language · Check spelling with typos"
+        # CHECK-ONLY: drop the hook default --write-changes; keep --force-exclude.
+        # Scan `.` plus `.config` explicitly: typos skips hidden dirs by default, so the
+        # configs relocated under .config/ go unchecked unless named (an explicit path
+        # overrides the hidden-skip). .git/.venv stay unscanned — they aren't listed.
+        args: ["--force-exclude", "--config", ".config/typos.toml", ".", ".config"]
+        pass_filenames: false
+
+  # -------------------------------- 🅰️ Ansible -------------------------------------- #
+  # ansible-lint's official hook: a self-bootstrapping pinned env whose rev Renovate's
+  # pre-commit manager bumps (like ruff/yamllint). It runs ansible's own `--syntax-check`
+  # internally, so no separate syntax-check hook is needed. Collections resolve from Ansible's
+  # default path; install the project's requirements.yml there (CI does this before the gate)
+  # via `ansible-galaxy install -r requirements.yml`. The hook is fully self-contained (no
+  # pyproject/venv), which is what keeps an Ansible-only repo Python-free.
+  - repo: https://github.com/ansible/ansible-lint
+    rev: v26.4.0
+    hooks:
+      - id: ansible-lint
+        name: "🅰️ ansible · Lint playbooks/roles with ansible-lint"
+
+  # --------------------------------- 📐 YAML ---------------------------------------- #
+  # check-yaml (above) only checks that YAML *parses*; yamllint enforces style — indentation,
+  # key duplicates, truthy values, … (config: .config/yamllint.yaml). pip-backed → self-bootstraps.
+  - repo: https://github.com/adrienverge/yamllint
+    rev: v1.38.0
+    hooks:
+      - id: yamllint
+        name: "📐 yaml · Lint YAML style with yamllint"
+        args: ["-c", ".config/yamllint.yaml"]
+
+  # -------------------------------- 📝 Markdown ------------------------------------- #
+  - repo: https://github.com/rvben/rumdl-pre-commit
+    rev: v0.2.17
+    hooks:
+      - id: rumdl
+        name: "📝 markdown · Lint/format with rumdl"
+        args: [--fix, --config, .config/rumdl.toml]
+
+  # ------------------------------ ✨ Commit Messages -------------------------------- #
+  # Plain Conventional Commits (no gitmoji): release-please derives version bumps from
+  # commit types and cannot parse a leading emoji, so commits must start with the bare type.
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v4.16.3
+    hooks:
+      - id: commitizen
+        name: "✨ commit-msg · Enforce Conventional Commits"
+        stages: [commit-msg]
+
+  # --------------------- 🛠️ Local Tools (prek can't bootstrap) ---------------------- #
+  - repo: local
+    hooks:
+      - id: prek-validate-config
+        name: "🔧 pre-commit · Validate .pre-commit-config.yaml"
+        entry: prek validate-config
+        language: system
+        files: '^\.pre-commit-config\.yaml$'
+      - id: check-copier-src-path
+        name: "🔧 copier · Require a remote _src_path (not a local path)"
+        # A local _src_path silently breaks `copier update` for every other clone and in CI.
+        entry: python3 scripts/check_copier_src_path.py
+        language: system
+        files: '^\.copier-answers\.yml$'
+        pass_filenames: true
+
+      - id: taplo
+        name: "📝 toml · Format with taplo"
+        entry: taplo format
+        language: system
+        types: [toml]
+        pass_filenames: false

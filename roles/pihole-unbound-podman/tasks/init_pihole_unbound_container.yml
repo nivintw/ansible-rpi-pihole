@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: © 2024 Tyler Nivin
+# SPDX-License-Identifier: MIT
+
 ---
 - name: "[OCI / Podman] Pull of upstream docker.io/pihole/pihole:latest container image"
   become: true

@@ -1,3 +1,6 @@
+# SPDX-FileCopyrightText: © 2024 Tyler Nivin
+# SPDX-License-Identifier: MIT
+
 ---
 - name: Reboot Pi
   ansible.builtin.shell: sleep 2 && reboot
